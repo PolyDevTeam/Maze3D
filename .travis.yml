@@ -32,9 +32,9 @@ matrix:
       apt:
         packages: *packages
         sources: *sources
-  - os: osx
-    osx_image: xcode9
-    compiler: clang
+#  - os: osx
+#    osx_image: xcode9
+#    compiler: clang
 
 
 install:
@@ -94,11 +94,11 @@ install:
   cmake -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
   make
   sudo make install
-- |
-  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-    brew install glew
-    brew install assimp
-  fi
+#- |
+#  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+#    brew install glew
+#    brew install assimp
+#  fi
 ############################################################################
 # Install opencv
 ############################################################################
