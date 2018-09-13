@@ -4,10 +4,10 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
-#ifdef __linux__
-    #include <GL/gl.h>
-#elif __APPLE__
+#if __APPLE__
     #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
 #endif
 
 int main(int argc, char** argv) {
