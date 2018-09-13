@@ -123,5 +123,5 @@ before_script:
 script:
 - cmake -DENABLE_TESTS=ON .
 - cmake --build . -- -j$JOBS
-- cd tests
-- ctest
+#- cd tests
+#- ctest
