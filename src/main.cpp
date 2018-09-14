@@ -4,7 +4,13 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
-#include <GL/gl.h>
+#if __APPLE__
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+
+#include "Pos.hpp"
 
 int main(int argc, char** argv) {
     // OpenGL test

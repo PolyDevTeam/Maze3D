@@ -11,7 +11,13 @@ if(BUILD_GAME)
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
     set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++14")
 
-    set(SOURCE_FILES src/main.cpp)
+    set(SOURCE_FILES
+            src/main.cpp
+            src/Pos.cpp
+            src/Ball.cpp
+            src/Map.cpp
+            src/Wall.cpp
+            src/Game.cpp src/Game.hpp)
 
     add_executable(Maze3D ${SOURCE_FILES})
 
