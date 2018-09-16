@@ -6,8 +6,11 @@
 
 #if __APPLE__
     #include <OpenGL/gl.h>
+#elif defined(_WIN32)
+	#include <GLFW/glfw3.h>
+	#include <gl/GL.h>
 #else
-    #include <GL/gl.h>
+	#include <GL/gl.h>
 #endif
 
 #include "Pos.hpp"
