@@ -5,7 +5,7 @@
 
 class Game {
 public:
-    void start();
+    void start(int argc, char** argv);
     void stop();
 private:
     Map map;

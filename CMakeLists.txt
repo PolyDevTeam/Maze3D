@@ -17,7 +17,8 @@ if(BUILD_GAME)
             src/Ball.cpp
             src/Map.cpp
             src/Wall.cpp
-            src/Game.cpp src/Game.hpp)
+            src/Game.cpp
+            src/Image.cpp)
 
     add_executable(Maze3D ${SOURCE_FILES})
 
@@ -90,6 +91,11 @@ if(BUILD_GAME)
         # target_link_libraries(Maze3D PUBLIC ${OSX_LIBS} -lSOIL)
     else()
         set(OpenCV_DIR "C:\\opencv\\opencv-3.2.0\\build")
+
+        SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+            
+        # OpenCV
+        list(APPEND ${CMAKE_PREFIX_PATH} "C:\\opencv\\buildOpenGL")
 
         find_package(OpenCV)
         target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
