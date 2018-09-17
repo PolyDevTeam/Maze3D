@@ -1,5 +1,6 @@
 .DS_Store
 .idea/
+.vs/
 CMakeFiles/
 cmake-build-debug/
 cmake_install.cmake
