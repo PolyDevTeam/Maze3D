@@ -90,12 +90,12 @@ if(BUILD_GAME)
         endif()
 
     else()
-        set(OpenCV_DIR "C:\\opencv\\opencv-3.2.0\\build")
+        set(OpenCV_DIR "C:\\opencv\\build")
 
         SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
             
         # OpenCV
-        list(APPEND ${CMAKE_PREFIX_PATH} "C:\\opencv\\buildOpenGL")
+        list(APPEND ${CMAKE_PREFIX_PATH} "C:\\opencv\\build")
 
         find_package(OpenCV)
         target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
