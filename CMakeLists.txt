@@ -4,6 +4,9 @@ option(BUILD_GAME "Build the game" ON)
 option(BUILD_DOCS "Build the documentation" OFF)
 option(ENABLE_TESTS "Enable the tests" OFF)
 
+# build l exe dans le dossier courant sinon window le cree dans un dossier temp
+SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+
 project(Maze3D)
 
 if(BUILD_GAME)
@@ -93,7 +96,7 @@ if(BUILD_GAME)
     elseif(WIN32)
 
 		#OPENCV
-		list(APPEND ${CMAKE_PREFIX_PATH} "C:\\Users\\stamegna\\Desktop\\opencv\\build")
+		list(APPEND ${CMAKE_PREFIX_PATH} "C:\\Users\\stamegna\\Desktop\\opencv\\buildOpenGL")
         find_package(OpenCV REQUIRED)
         target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
         target_link_libraries(Maze3D ${OpenCV_LIBS})
