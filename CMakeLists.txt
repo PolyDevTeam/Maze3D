@@ -63,7 +63,7 @@ if(BUILD_GAME)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} OPENCV opencv ${DEPS_PATH}/opencv/lib/opencv.a ${DEPS_PATH}/opencv/include _STATIC)
 #        setupLib(Maze3D ${PKG_CONFIG_FOUND} ASSIMP assimp ${DEPS_PATH}/assimp/lib/assimp.a ${DEPS_PATH}/assimp/include _STATIC)
 #        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
-#        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
+        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
 
 #        if(NOT EXISTS /usr/local/include/glm)
 #            target_include_directories(Maze3D PUBLIC ${DEPS_PATH}/glm/include)
@@ -79,15 +79,15 @@ if(BUILD_GAME)
         endif()
 
         if(APPLE)
+#list(APPEND ${CMAKE_PREFIX_PATH} "/amuhome/s15022364/Desktop/deps")
             target_include_directories(Maze3D PUBLIC ${PROJECT_SOURCE_DIR}/include System/Library/Frameworks)
             find_library(COCOA_LIBRARY Cocoa)
             find_library(OpenGL_LIBRARY OpenGL)
-            target_link_libraries(Maze3D PUBLIC "-framework QTKit" "-framework QuartzCore" "-framework AppKit" "-framework IOKit")
-
             set(OSX_LIBS ${COCOA_LIBRARY} ${OpenGL_LIBRARY})
+            target_link_libraries(Maze3D PUBLIC "-framework QTKit" "-framework QuartzCore" "-framework AppKit" "-framework IOKit")
+            target_link_libraries(Maze3D PUBLIC ${OSX_LIBS})
         endif()
 
-        # target_link_libraries(Maze3D PUBLIC ${OSX_LIBS} -lSOIL)
     else()
         set(OpenCV_DIR "C:\\opencv\\opencv-3.2.0\\build")
 
