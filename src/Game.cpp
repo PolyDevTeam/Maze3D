@@ -41,32 +41,78 @@ void Game::start(int argc, char **argv) {
 	Point2i p2;
 	Point2i p3;
 	Point2i p4;
+	Point2i p11;
+	Point2i p12;
+	Point2i p13;
+	Point2i p14;
 	Rect r;
 	std::vector<Point2i> objCapture;
 	std::vector<Point2i> objRef;
 	std::vector<Point2i> objRef2;
 	Mat h;
 
+	int eps = 30;
+
     // Get WebCam
     VideoCapture capture(0);
+	//480 x 640
 
 	toad = imread("C:\\Users\\Stéphane\\Pictures\\bad_toad.png", 1);
-	final = imread("C:\\Users\\Stéphane\\Pictures\\bad_toad.png", 1);
+
+	/*p0.x = 560;
+	p0.y = 70;
+	objRef.push_back(p0);
+	p0.x = 70;
+	p0.y = 70;
+	objRef.push_back(p0);
+	p0.x = 70;
+	p0.y = 370;
+	objRef.push_back(p0);
+	p0.x = 560;
+	p0.y = 370;
+	objRef.push_back(p0);*/
+
+	p0.x = 199;
+	p0.y = 100;
+	objRef.push_back(p0);
+	p0.x = 100;
+	p0.y = 100;
+	objRef.push_back(p0);
+	p0.x = 100;
+	p0.y = 160;
+	objRef.push_back(p0);
+	p0.x = 199;
+	p0.y = 160;
+	objRef.push_back(p0);
 
 
+	p1 = Point2i(0, 1);
+	p2 = Point2i(0, 2);
+	p3 = Point2i(0, 3);
+	p4 = Point2i(0, 4);
+
+	bool bool1;
+	bool bool2;
+	bool bool3;
+	bool bool4;
 
 
-
+	objCapture.push_back(p1);
+	objCapture.push_back(p2);
+	objCapture.push_back(p3);
+	objCapture.push_back(p4);
 
     // Loop
-    while (cvWaitKey(30) != 'q') {
+    while (cvWaitKey(10) != 'q') {
         // Refresh webcam image
         capture >> src;
+		
 
         // Convert to grayscale
         cv::cvtColor(src, gray, CV_BGR2GRAY);
 
         // Use Canny instead of threshold to catch squares with gradient shading
+
         blur(gray, bw, Size(3, 3));
         cv::Canny(gray, bw, 80, 240, 3);
 
@@ -78,7 +124,15 @@ void Game::start(int argc, char **argv) {
 
         src.copyTo(dst);
 
+
+		bool1 = false;		
+		bool2 = false;
+		bool3 = false;
+		bool4 = false;
+
+
         for (auto &contour : contours) {
+
             // Approximate contour with accuracy proportional
             // to the contour perimeter
             cv::approxPolyDP(cv::Mat(contour), approx, cv::arcLength(cv::Mat(contour), true) * 0.02, true);
@@ -91,8 +145,12 @@ void Game::start(int argc, char **argv) {
             if (approx.size() == 3) {
                 Image::setLabel(dst, "TRI", contour);  // Triangles
 				r = boundingRect(contour);
-				p3.x = r.x;
-				p3.y = r.y;
+
+				//if ((r.x > p3.x - eps && r.x<p3.x + eps && r.y>p3.y - eps && r.y < p3.y + eps) || p3.x == 0) {
+					p3.x = r.x;
+					p3.y = r.y;
+					bool3 = true;
+				//}
             }
             else if (approx.size() >= 4 && approx.size() <= 6) {
                 // Number of vertices of polygonal curve
@@ -103,8 +161,12 @@ void Game::start(int argc, char **argv) {
                 if (vtc == 4) {
                     Image::setLabel(dst, "RECKT", contour);
 					r = boundingRect(contour);
-					p1.x = r.x;
-					p1.y = r.y;
+					//if ((r.x > p1.x - eps && r.x<p1.x + eps && r.y>p1.y - eps && r.y < p1.y + eps) || p1.x == 0) {
+						p1.x = r.x;
+						p1.y = r.y;
+						bool1 = true;
+
+					//}
 				}
                 else if (vtc == 5) {
                     Image::setLabel(dst, "PENTA", contour);
@@ -112,8 +174,12 @@ void Game::start(int argc, char **argv) {
                 else if (vtc == 6) {
                     Image::setLabel(dst, "HEXA", contour);
 					r = boundingRect(contour);
-					p2.x = r.x;
-					p2.y = r.y;
+					//if ((r.x > p2.x - eps && r.x<p2.x + eps && r.y>p2.y - eps && r.y < p2.y + eps) || p2.x == 0) {
+						p2.x = r.x;
+						p2.y = r.y;
+						bool2 = true;
+
+					//}
                 }
             }
             else {
@@ -126,41 +192,47 @@ void Game::start(int argc, char **argv) {
                     std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
                     Image::setLabel(dst, "CIR", contour);
 					r = boundingRect(contour);
-					p4.x = r.x;
-					p4.y = r.y;
+					//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
+						p4.x = r.x;
+						p4.y = r.y;
+						bool4 = true;
+
+					// }
             }
         }
 
 		// Draw game
 		cv::imshow("dst", dst);
 
-		objCapture.push_back(p1);
-		objCapture.push_back(p2);
-		objCapture.push_back(p3);
-		objCapture.push_back(p4);
+		if (bool1 && bool2 && bool3 &bool4) {
+			p11 = p1;
+			p12 = p2;
+			p13 = p3;
+			p14 = p4;
 
+			objCapture.clear();
+			objCapture.push_back(p11);
+			objCapture.push_back(p12);
+			objCapture.push_back(p13);
+			objCapture.push_back(p14);
+		}
 
-		p0.x = 560;
-		p0.y = 70;
-		objRef.push_back(p0);
-		p0.x = 70;
-		p0.y = 70;
-		objRef.push_back(p0);
-		p0.x = 70;
-		p0.y = 370;
-		objRef.push_back(p0);
-		p0.x = 560;
-		p0.y = 370;
-		objRef.push_back(p0);
-
+		
 		h = findHomography(objCapture, objRef, RANSAC);
-		cout << h<<endl<<endl;
+		
+		
+		//cout << h<<endl<<endl;
 
-		//perspectiveTransform(objRef, objRef2, h);
+		
+		try {
+			warpPerspective(toad, final, h, final.size());
+		}
+		catch (std::exception const& e)
+		{
+			cerr << "ERREUR : " << e.what() << endl;
+		}
 
-		warpPerspective(toad, final, h, final.size());
-
-		//cv::imshow("final", final);
+		cv::imshow("final", final);
     }
 
     // Stop the game
