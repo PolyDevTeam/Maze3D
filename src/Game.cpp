@@ -1,4 +1,4 @@
-#include "Game.hpp"
+
 
 //#if __APPLE__
 //    #include <OpenGL/gl.h>
@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "Game.hpp"
 #include "Image.hpp"
 
 using namespace std;
@@ -52,6 +53,7 @@ void Game::start(int argc, char **argv) {
 	Mat h;
 
 	int eps = 100;
+	int eps2 = 50;
 
     // Get WebCam
     VideoCapture capture(0);
@@ -143,8 +145,8 @@ void Game::start(int argc, char **argv) {
 				r = boundingRect(contour);
 
 				//if ((r.x > p3.x - eps && r.x<p3.x + eps && r.y>p3.y - eps && r.y < p3.y + eps) || p3.x == 0) {
-				p3.x = r.x;
-				p3.y = r.y;
+				p3.x = r.x + r.width / 2;
+				p3.y = r.y + r.height / 2;
 				bool3 = true;
 				//}
 			}
@@ -158,8 +160,8 @@ void Game::start(int argc, char **argv) {
 					Image::setLabel(dst, "RECKT", contour);
 					r = boundingRect(contour);
 					//if ((r.x > p1.x - eps && r.x<p1.x + eps && r.y>p1.y - eps && r.y < p1.y + eps) || p1.x == 0) {
-					p1.x = r.x;
-					p1.y = r.y;
+					p1.x = r.x + r.width / 2;
+					p1.y = r.y + r.height / 2;
 					bool1 = true;
 
 					//}
@@ -171,8 +173,8 @@ void Game::start(int argc, char **argv) {
 					Image::setLabel(dst, "HEXA", contour);
 					r = boundingRect(contour);
 					//if ((r.x > p2.x - eps && r.x<p2.x + eps && r.y>p2.y - eps && r.y < p2.y + eps) || p2.x == 0) {
-					p2.x = r.x;
-					p2.y = r.y;
+					p2.x = r.x + r.width / 2;
+					p2.y = r.y + r.height / 2;
 					bool2 = true;
 
 					//}
@@ -189,13 +191,15 @@ void Game::start(int argc, char **argv) {
 					Image::setLabel(dst, "CIR", contour);
 				r = boundingRect(contour);
 				//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
-				p4.x = r.x;
-				p4.y = r.y;
+				p4.x = r.x + r.width / 2;
+				p4.y = r.y + r.height / 2;
 				bool4 = true;
 
 				// }
 			}
 		}
+
+
 
 		// Draw game
 		cv::imshow("dst", dst);
@@ -207,9 +211,24 @@ void Game::start(int argc, char **argv) {
 			p13 = p3;
 			p14 = p4;
 
+			/*p0.x = p1.x;
+			p0.y = p1.y;
+			objRef.push_back(p0);
+			p0.x = p2.x;
+			p0.y = p2.y;
+			objRef.push_back(p0);
+			p0.x = p3.x;
+			p0.y = p3.y;
+			objRef.push_back(p0);
+			p0.x = p4.x;
+			p0.y = p4.y;
+			objRef.push_back(p0);*/
+
 			initialisation = true;
 			cout<<"FIN INITIALISATION"<<endl;
 		}
+
+		
 	}
 
 
@@ -224,7 +243,7 @@ void Game::start(int argc, char **argv) {
 
 
     // Loop
-    while (cvWaitKey(10) != 'q') {
+    while (cvWaitKey(1) != 'q') {
         // Refresh webcam image
         capture >> src;
 		
@@ -236,14 +255,25 @@ void Game::start(int argc, char **argv) {
         blur(gray, bw, Size(3, 3));
         cv::Canny(gray, bw, 80, 240, 3);
 
+		int high = highestPoint(p11, p12, p13, p14);
+		int low = lowestPoint(p11, p12, p13, p14);
+		int right = rightestPoint(p11, p12, p13, p14);
+		int left = leftestPoint(p11, p12, p13, p14);
+
+		
+		applyMask(bw, high, low, right, left, eps2).copyTo(bw);
         // Display canny image
         cv::imshow("bw", bw);
+
 
         // Find contours
         cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
         src.copyTo(dst);
 
+		//Haut
+
+		
 
 		bool1 = false;		
 		bool2 = false;
@@ -267,8 +297,8 @@ void Game::start(int argc, char **argv) {
 				r = boundingRect(contour);
 
 				//if ((r.x > p3.x - eps && r.x<p3.x + eps && r.y>p3.y - eps && r.y < p3.y + eps) || p3.x == 0) {
-					p3.x = r.x;
-					p3.y = r.y;
+					p3.x = r.x + r.width / 2;
+					p3.y = r.y + r.height / 2;
 					bool3 = true;
 				//}
             }
@@ -282,8 +312,8 @@ void Game::start(int argc, char **argv) {
                     Image::setLabel(dst, "RECKT", contour);
 					r = boundingRect(contour);
 					//if ((r.x > p1.x - eps && r.x<p1.x + eps && r.y>p1.y - eps && r.y < p1.y + eps) || p1.x == 0) {
-						p1.x = r.x;
-						p1.y = r.y;
+						p1.x = r.x + r.width / 2;
+						p1.y = r.y + r.height / 2;
 						bool1 = true;
 
 					//}
@@ -295,8 +325,8 @@ void Game::start(int argc, char **argv) {
                     Image::setLabel(dst, "HEXA", contour);
 					r = boundingRect(contour);
 					//if ((r.x > p2.x - eps && r.x<p2.x + eps && r.y>p2.y - eps && r.y < p2.y + eps) || p2.x == 0) {
-						p2.x = r.x;
-						p2.y = r.y;
+						p2.x = r.x + r.width / 2;
+						p2.y = r.y + r.height / 2;
 						bool2 = true;
 
 					//}
@@ -313,13 +343,18 @@ void Game::start(int argc, char **argv) {
                     Image::setLabel(dst, "CIR", contour);
 					r = boundingRect(contour);
 					//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
-						p4.x = r.x;
-						p4.y = r.y;
+						p4.x = r.x + r.width / 2;
+						p4.y = r.y + r.height / 2;
 						bool4 = true;
 
 					// }
             }
         }
+
+		line(dst, p11, p12, Scalar(0, 255, 0), 3);
+		line(dst, p12, p13, Scalar(0, 255, 0), 3);
+		line(dst, p13, p14, Scalar(0, 255, 0), 3);
+		line(dst, p14, p11, Scalar(0, 255, 0), 3);
 
 		// Draw game
 		cv::imshow("dst", dst);
@@ -374,6 +409,46 @@ void Game::start(int argc, char **argv) {
 
     // Stop the game
     stop();
+}
+
+int Game::highestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+	int higher = p11.y;
+	
+	if (p12.y < higher) higher = p12.y;
+	if (p13.y < higher) higher = p13.y;
+	if (p14.y < higher) higher = p14.y;
+	return higher;
+}
+int Game::lowestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+	int low = p11.y;
+
+	if (p12.y > low) low = p12.y;
+	if (p13.y > low) low = p13.y;
+	if (p14.y > low) low = p14.y;
+	return low;
+}
+int Game::rightestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+	int right = p11.x;
+
+	if (p12.x > right) right = p12.x;
+	if (p13.x > right) right = p13.x;
+	if (p14.x > right) right = p14.x;
+	return right;
+}
+int Game::leftestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+	int left = p11.y;
+
+	if (p12.x < left) left = p12.x;
+	if (p13.x < left) left = p13.x;
+	if (p14.x < left) left = p14.x;
+	return left;
+}
+Mat Game::applyMask(Mat bw, int high, int low, int right, int left, int eps) {
+	Mat dest;
+	Mat mask = Mat::zeros(bw.rows, bw.cols, bw.type());
+	rectangle(mask, Rect(left-eps, high-eps, right - left + 2*eps, low - high + 2*eps), Scalar(255, 255, 255), FILLED);
+	bitwise_and(bw, mask, dest);
+	return dest;
 }
 
 void Game::stop() {
