@@ -109,7 +109,7 @@ if(BUILD_GAME)
 
 		#GLFW
 		SET(GLFW_PATH "C:\\glfw")
-		target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include\\GLFW")
+		target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include")
 		target_link_libraries(Maze3D "${GLFW_PATH}\\lib-vc2015\\glfw3.lib")
 
 		#BOX2D

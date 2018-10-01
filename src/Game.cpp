@@ -11,16 +11,28 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <GLFW/glfw3.h>
+
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "Game.hpp"
 #include "Image.hpp"
+#include "Game.hpp"
 
 using namespace std;
 using namespace cv;
+
+
+
+void glDraw(Mat Labirinth) {
+
+}
+
+
+
+
 
 void Game::start(int argc, char **argv) {
     // Init Game variables
@@ -59,7 +71,7 @@ void Game::start(int argc, char **argv) {
     VideoCapture capture(0);
 	//480 x 640
 
-	toad = imread("C:\\Users\\Stéphane\\Pictures\\bad_toad.png", 1);
+	toad = imread("bad_toad.png", 1);
 
 	/*p0.x = 560;
 	p0.y = 70;
@@ -100,6 +112,10 @@ void Game::start(int argc, char **argv) {
 	bool bool3 = false;
 	bool bool4 = false;
 	int compteur = 0;
+	
+	Size t1, t2, t3, t4;
+	Mat zone2Jeu, zone2Jeu_gray, zone2Jeu_gauss, zone2Jeu_canny;
+	Mat zone2Jeu_corner, zone2Jeu_corner_normalized, zone2Jeu_corner_scaled;
 
 
 	initialisation = false;
@@ -143,7 +159,7 @@ void Game::start(int argc, char **argv) {
 			if (approx.size() == 3) {
 				Image::setLabel(dst, "TRI", contour);  // Triangles
 				r = boundingRect(contour);
-
+				t3 = Size(r.width / 2, r.height / 2);
 				//if ((r.x > p3.x - eps && r.x<p3.x + eps && r.y>p3.y - eps && r.y < p3.y + eps) || p3.x == 0) {
 				p3.x = r.x + r.width / 2;
 				p3.y = r.y + r.height / 2;
@@ -159,6 +175,7 @@ void Game::start(int argc, char **argv) {
 				if (vtc == 4) {
 					Image::setLabel(dst, "RECKT", contour);
 					r = boundingRect(contour);
+					t1 = Size(r.width / 2, r.height / 2);
 					//if ((r.x > p1.x - eps && r.x<p1.x + eps && r.y>p1.y - eps && r.y < p1.y + eps) || p1.x == 0) {
 					p1.x = r.x + r.width / 2;
 					p1.y = r.y + r.height / 2;
@@ -172,6 +189,7 @@ void Game::start(int argc, char **argv) {
 				else if (vtc == 6) {
 					Image::setLabel(dst, "HEXA", contour);
 					r = boundingRect(contour);
+					t2 = Size(r.width / 2, r.height / 2);
 					//if ((r.x > p2.x - eps && r.x<p2.x + eps && r.y>p2.y - eps && r.y < p2.y + eps) || p2.x == 0) {
 					p2.x = r.x + r.width / 2;
 					p2.y = r.y + r.height / 2;
@@ -185,15 +203,18 @@ void Game::start(int argc, char **argv) {
 				double area = cv::contourArea(contour);
 				cv::Rect r = cv::boundingRect(contour);
 				int radius = r.width / 2;
+				if (radius > 10) {
+					if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
+						std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
+						Image::setLabel(dst, "CIR", contour);
+					r = boundingRect(contour);
+					t4 = Size(r.width / 2, r.height / 2);
+					//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
+					p4.x = r.x + r.width / 2;
+					p4.y = r.y + r.height / 2;
+					bool4 = true;
+				}
 
-				if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
-					std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
-					Image::setLabel(dst, "CIR", contour);
-				r = boundingRect(contour);
-				//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
-				p4.x = r.x + r.width / 2;
-				p4.y = r.y + r.height / 2;
-				bool4 = true;
 
 				// }
 			}
@@ -224,6 +245,20 @@ void Game::start(int argc, char **argv) {
 			p0.y = p4.y;
 			objRef.push_back(p0);*/
 
+
+			zone2Jeu = dst(Rect(Point(p11.x + t1.width,p11.y + t1.height), Point(p13.x - t3.width, p13.y - t3.height)));
+			cv::cvtColor(zone2Jeu, zone2Jeu_gray, CV_BGR2GRAY);
+			GaussianBlur(zone2Jeu_gray, zone2Jeu_gauss, Size(3,3), 0, 0);
+			Canny(zone2Jeu_gauss, zone2Jeu_canny, 100, 30, 3);
+
+
+
+			cv::imshow("zonecanny", zone2Jeu_canny);
+			// Use Canny instead of threshold to catch squares with gradient shading
+			cv::imshow("zone", zone2Jeu);
+
+
+
 			initialisation = true;
 			cout<<"FIN INITIALISATION"<<endl;
 		}
@@ -232,18 +267,93 @@ void Game::start(int argc, char **argv) {
 	}
 
 
+	Mat zone;
+	zone2Jeu.copyTo(zone);
 
-	
+	int iSliderValue1 = 20;
+	int iSliderValue2 = 0;
+	int iSliderValue3 = 40;
+
+	int iSliderValue4 = 255;
+	int iSliderValue5 = 12;
+
+	int iSliderValue6 = 2;
+	int iSliderValue7 = 3;
+	int iSliderValue8 = 0.04;
+	int iSliderValue9 = 200;
+
+	namedWindow("My Window",WINDOW_AUTOSIZE);
+	createTrackbar("lines theta", "My Window", &iSliderValue1, 255);
+	createTrackbar("lines threshold", "My Window", &iSliderValue2, 255);
+	createTrackbar("lines minLineLength", "My Window", &iSliderValue3, 255);
+	createTrackbar("circles higher canny threshold", "My Window", &iSliderValue4, 255);
+	createTrackbar("circles accumulator threshold", "My Window", &iSliderValue5, 255);
+	createTrackbar("corners blockSize", "My Window", &iSliderValue6, 255);
+	createTrackbar("corners apertureSize", "My Window", &iSliderValue7, 255);
+	createTrackbar("corners k", "My Window", &iSliderValue8, 255);
+	createTrackbar("corners normalisation thresh", "My Window", &iSliderValue9, 255);
 
 
+	while (cvWaitKey(1) != 'q') {
+		zone2Jeu.copyTo(zone);
+
+		//	WALLS LINES
+		vector<Vec4i> lines;
+		HoughLinesP(zone2Jeu_canny, lines, 1, CV_PI / 180, iSliderValue1, iSliderValue2, iSliderValue3);
+		for (size_t i = 0; i < lines.size(); i++)
+		{
+			Vec4i l = lines[i];
+			line(zone, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
+		}
+
+		//	START CIRCLE
+		vector<Vec3f> circles;
+		HoughCircles(zone2Jeu_gray, circles, CV_HOUGH_GRADIENT, 1, zone2Jeu_gray.rows / 8, iSliderValue4, iSliderValue5, 0, 0);
+		for (size_t i = 0; i < circles.size(); i++)
+		{
+			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+			int radius = cvRound(circles[i][2]);
+			// circle center
+			circle(zone, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+			// circle outline
+			circle(zone, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+		}
 
 
+		//	CORNERS
+		/// Detecting corners
+		cornerHarris(zone2Jeu_gray, zone2Jeu_corner, iSliderValue6, iSliderValue7, iSliderValue8, BORDER_DEFAULT);
 
+		/// Normalizing
+		normalize(zone2Jeu_corner, zone2Jeu_corner_normalized, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+		convertScaleAbs(zone2Jeu_corner_normalized, zone2Jeu_corner_scaled);
+
+		/// Drawing a circle around corners
+		for (int j = 0; j < zone2Jeu_corner_normalized.rows; j++)
+		{
+			for (int i = 0; i < zone2Jeu_corner_normalized.cols; i++)
+			{
+				if ((int)zone2Jeu_corner_normalized.at<float>(j, i) > iSliderValue9)
+				{
+					circle(zone, Point(i, j), 5, Scalar(0), 2, 8, 0);
+				}
+			}
+		}
+
+		//imshow("corners", zone2Jeu_corner_scaled);
+		imshow("zone", zone);
+
+	}
 
 
 
     // Loop
     while (cvWaitKey(1) != 'q') {
+
+
+
+
+
         // Refresh webcam image
         capture >> src;
 		
@@ -404,6 +514,9 @@ void Game::start(int argc, char **argv) {
 			}
 
 			cv::imshow("final", final);
+
+
+
 		}
     }
 
