@@ -297,50 +297,17 @@ void Game::start(int argc, char **argv) {
 	while (cvWaitKey(1) != 'q') {
 		zone2Jeu.copyTo(zone);
 
-		//	WALLS LINES
-		vector<Vec4i> lines;
-		HoughLinesP(zone2Jeu_canny, lines, 1, CV_PI / 180, iSliderValue1, iSliderValue2, iSliderValue3);
-		for (size_t i = 0; i < lines.size(); i++)
-		{
-			Vec4i l = lines[i];
-			line(zone, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, CV_AA);
-		}
-
-		//	START CIRCLE
-		vector<Vec3f> circles;
-		HoughCircles(zone2Jeu_gray, circles, CV_HOUGH_GRADIENT, 1, zone2Jeu_gray.rows / 8, iSliderValue4, iSliderValue5, 0, 0);
-		for (size_t i = 0; i < circles.size(); i++)
-		{
-			Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-			int radius = cvRound(circles[i][2]);
-			// circle center
-			circle(zone, center, 3, Scalar(0, 255, 0), -1, 8, 0);
-			// circle outline
-			circle(zone, center, radius, Scalar(0, 0, 255), 3, 8, 0);
-		}
-
-
-		//	CORNERS
-		/// Detecting corners
-		cornerHarris(zone2Jeu_gray, zone2Jeu_corner, iSliderValue6, iSliderValue7, iSliderValue8, BORDER_DEFAULT);
-
-		/// Normalizing
-		normalize(zone2Jeu_corner, zone2Jeu_corner_normalized, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
-		convertScaleAbs(zone2Jeu_corner_normalized, zone2Jeu_corner_scaled);
-
-		/// Drawing a circle around corners
-		for (int j = 0; j < zone2Jeu_corner_normalized.rows; j++)
-		{
-			for (int i = 0; i < zone2Jeu_corner_normalized.cols; i++)
-			{
-				if ((int)zone2Jeu_corner_normalized.at<float>(j, i) > iSliderValue9)
-				{
-					circle(zone, Point(i, j), 5, Scalar(0), 2, 8, 0);
+		//	DETECTION WALL BY CANNY
+		for (int row = 0; row < zone2Jeu_canny.rows; row++) {
+			for (int col = 0; col < zone2Jeu_canny.cols; col++) {
+				uchar color = zone2Jeu_canny.at<uchar>(row, col);
+				if (color > 127) {
+					circle(zone, Point(col, row), 1, Scalar(0, 255, 0));
 				}
 			}
 		}
 
-		//imshow("corners", zone2Jeu_corner_scaled);
+
 		imshow("zone", zone);
 
 	}
