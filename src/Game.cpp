@@ -1,5 +1,3 @@
-
-
 //#if __APPLE__
 //    #include <OpenGL/gl.h>
 //#else
@@ -10,6 +8,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
+
+#define GLFW_INCLUDE_GLU
+#include <GLFW/glfw3.h>
 
 #include <vector>
 #include <iostream>
@@ -23,9 +24,108 @@
 using namespace std;
 using namespace cv;
 
+void controls_GL(GLFWwindow* GL_window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+		if (key == GLFW_KEY_ESCAPE)
+			glfwSetWindowShouldClose(GL_window, GL_TRUE);
+}
+
+
+void def_carre(void)
+{
+	glBegin(GL_POLYGON);
+	glVertex2f(-0.5, -0.5);
+	glVertex2f(-0.5, 0.5);
+	glVertex2f(0.5, 0.5);
+	glVertex2f(0.5, -0.5);
+	glEnd();
+
+}
+
+
+GLFWwindow* init_GL(int width = 640, int height = 480) {
+
+	//	Init the library
+	if (!glfwInit()) {
+		cerr << "Initialisation GLFW Failed" << endl;
+		return NULL;
+	}
+
+	//	Create a windowed mode window and its OpenGL context 
+	GLFWwindow* GL_window = glfwCreateWindow(width, height, "GL_window", NULL, NULL);
+	if (!GL_window)
+	{
+		cerr << "Initialisation of GL window Failed" << endl;
+		glfwTerminate();
+		return NULL;
+	}
+
+	/* Make the window's context current */
+	glfwMakeContextCurrent(GL_window);
+
+	glfwSetKeyCallback(GL_window, controls_GL);
+
+	// Get info of GPU and supported OpenGL version
+	cout << "Renderer : " << glGetString(GL_RENDERER) << endl;
+	cout << "OpenGL version supported : " << glGetString(GL_VERSION) << endl;
+
+
+	glEnable(GL_DEPTH_TEST); // Depth Testing
+	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
+	return GL_window;
+};
+
+
+
+int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
+	while (!glfwWindowShouldClose(GL_window)) {
+
+		// Scale to window size
+		GLint windowWidth, windowHeight;
+		glfwGetWindowSize(GL_window, &windowWidth, &windowHeight);
+		glViewport(0, 0, windowWidth, windowHeight);
+
+		// Draw stuff
+		glClearColor(0.0, 0.8, 0.3, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glMatrixMode(GL_PROJECTION_MATRIX);
+		glLoadIdentity();
+		gluPerspective(45, (double)windowWidth / (double)windowHeight, 0.1f, 100.0f);
+
+		glMatrixMode(GL_MODELVIEW_MATRIX);
+		glTranslatef(0, 0, -5);
+
+		def_carre();
+
+		// Update Screen
+		glfwSwapBuffers(GL_window);
+
+		// Check for any input, or window movement
+		glfwPollEvents();
+
+
+	}
+
+
+	glfwTerminate();
+	return 0;
+}
+
+
+
 void Game::start(int argc, char **argv) {
     // Init Game variables
-//    cv::Mat src = cv::imread("MAZEtte.png");
+	//cv::Mat src = cv::imread("MAZEtte.png");
+
+	GLFWwindow *win = init_GL(640,480);
+	Mat a, b;
+	draw_GL(win, a, b);
+
     Image src;
     Image gray;
     Image bw;
@@ -542,7 +642,6 @@ Mat Game::getWallsMat(Mat src, Point left_up, Point right_down) {
 	return zone2Jeu_canny;
 
 }
-
 
 void Game::stop() {
 

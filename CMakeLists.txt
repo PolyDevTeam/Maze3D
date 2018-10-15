@@ -9,7 +9,7 @@ project(Maze3D)
 if(BUILD_GAME)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-    set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++14")
+    set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++11")
 
     set(SOURCE_FILES
             src/main.cpp
@@ -63,7 +63,7 @@ if(BUILD_GAME)
     if(NOT WIN32)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} OPENCV opencv ${DEPS_PATH}/opencv/lib/opencv.a ${DEPS_PATH}/opencv/include _STATIC)
 #        setupLib(Maze3D ${PKG_CONFIG_FOUND} ASSIMP assimp ${DEPS_PATH}/assimp/lib/assimp.a ${DEPS_PATH}/assimp/include _STATIC)
-#        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
+        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
 
 #        if(NOT EXISTS /usr/local/include/glm)
@@ -90,16 +90,33 @@ if(BUILD_GAME)
         endif()
 
     else()
-        set(OpenCV_DIR "C:\\opencv\\build")
+       set(OpenCV_DIR "C:\\opencv\\build")
 
         SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
             
         # OpenCV
         list(APPEND ${CMAKE_PREFIX_PATH} "C:\\opencv\\build")
 
-        find_package(OpenCV)
+        find_package(OpenCV REQUIRED)
         target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
         target_link_libraries(Maze3D ${OpenCV_LIBS})
+
+		#GL
+		find_package(OpenGL REQUIRED)
+		target_include_directories(Maze3D PUBLIC ${OPENGL_INCLUDE_DIRS})
+		target_link_libraries(Maze3D ${OPENGL_LIBRARIES})
+
+
+		#GLFW
+		SET(GLFW_PATH "C:\\glfw")
+		target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include")
+		target_link_libraries(Maze3D "${GLFW_PATH}\\lib-vc2015\\glfw3.lib")
+
+		#BOX2D
+		SET(BOX2D_PATH "C:\\box2d")
+		target_include_directories(Maze3D PUBLIC "${BOX2D_PATH}\\include\\")
+		target_link_libraries(Maze3D "${BOX2D_PATH}\\lib\\Box2D.lib")
+
     endif()
 endif()
 
