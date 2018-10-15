@@ -10,7 +10,12 @@ public:
 	int lowestPoint(cv::Point2i, cv::Point2i, cv::Point2i, cv::Point2i);
 	int rightestPoint(cv::Point2i, cv::Point2i, cv::Point2i, cv::Point2i);
 	int leftestPoint(cv::Point2i, cv::Point2i, cv::Point2i, cv::Point2i);
+	double dist(cv::Point2i, cv::Point2i);
+	cv::Point2i nearest(std::vector<cv::Point2i>, cv::Point2i);
 	cv::Mat applyMask(cv::Mat, int, int, int, int, int);
+	int random(int, int);
+	bool squareIsBlack(cv::Mat, int);
+	void initialisationDetection(cv::VideoCapture capture, cv::Point2i &p11, cv::Point2i &p12, cv::Point2i &p13, cv::Point2i &p14);
     void stop();
 private:
     Map map;

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <random>
 
 #include "Game.hpp"
 #include "Image.hpp"
@@ -34,10 +35,13 @@ void Game::start(int argc, char **argv) {
 	Mat toad;
 	Mat final;
 
-    std::vector<std::vector<cv::Point>> contours;
-    std::vector<cv::Point> approx;
+    vector<std::vector<cv::Point>> contours;
+    vector<cv::Point> approx;
 
 	Point2i p0;
+	Point2i pRect;
+
+
 	Point2i p1;
 	Point2i p2;
 	Point2i p3;
@@ -47,13 +51,14 @@ void Game::start(int argc, char **argv) {
 	Point2i p13;
 	Point2i p14;
 	Rect r;
-	std::vector<Point2i> objCapture;
-	std::vector<Point2i> objRef;
-	std::vector<Point2i> objRef2;
+	vector<Point2i> objCapture;
+	vector<Point2i> objRef;
+	vector<Point2i> vectRect;
 	Mat h;
 
 	int eps = 100;
 	int eps2 = 50;
+	int eps3 = 100;
 
     // Get WebCam
     VideoCapture capture(0);
@@ -87,19 +92,7 @@ void Game::start(int argc, char **argv) {
 	p0.y = 160;
 	objRef.push_back(p0);
 
-
-	p1 = Point2i(0, 1);
-	p2 = Point2i(0, 2);
-	p3 = Point2i(0, 3);
-	p4 = Point2i(0, 4);
-
 	bool initialisation;
-
-	bool bool1 = false;
-	bool bool2 = false;
-	bool bool3 = false;
-	bool bool4 = false;
-	int compteur = 0;
 
 
 	initialisation = false;
@@ -124,10 +117,7 @@ void Game::start(int argc, char **argv) {
 
 		src.copyTo(dst);
 
-		bool bool1 = false;
-		bool bool2 = false;
-		bool bool3 = false;
-		bool bool4 = false;
+		vectRect.clear();
 
 		for (auto &contour : contours) {
 
@@ -142,13 +132,6 @@ void Game::start(int argc, char **argv) {
 
 			if (approx.size() == 3) {
 				Image::setLabel(dst, "TRI", contour);  // Triangles
-				r = boundingRect(contour);
-
-				//if ((r.x > p3.x - eps && r.x<p3.x + eps && r.y>p3.y - eps && r.y < p3.y + eps) || p3.x == 0) {
-				p3.x = r.x + r.width / 2;
-				p3.y = r.y + r.height / 2;
-				bool3 = true;
-				//}
 			}
 			else if (approx.size() >= 4 && approx.size() <= 6) {
 				// Number of vertices of polygonal curve
@@ -159,25 +142,17 @@ void Game::start(int argc, char **argv) {
 				if (vtc == 4) {
 					Image::setLabel(dst, "RECKT", contour);
 					r = boundingRect(contour);
-					//if ((r.x > p1.x - eps && r.x<p1.x + eps && r.y>p1.y - eps && r.y < p1.y + eps) || p1.x == 0) {
-					p1.x = r.x + r.width / 2;
-					p1.y = r.y + r.height / 2;
-					bool1 = true;
+					
+					pRect.x = r.x + r.width / 2;
+					pRect.y = r.y + r.height / 2;
+					vectRect.push_back(pRect);
 
-					//}
 				}
 				else if (vtc == 5) {
 					Image::setLabel(dst, "PENTA", contour);
 				}
 				else if (vtc == 6) {
 					Image::setLabel(dst, "HEXA", contour);
-					r = boundingRect(contour);
-					//if ((r.x > p2.x - eps && r.x<p2.x + eps && r.y>p2.y - eps && r.y < p2.y + eps) || p2.x == 0) {
-					p2.x = r.x + r.width / 2;
-					p2.y = r.y + r.height / 2;
-					bool2 = true;
-
-					//}
 				}
 			}
 			else {
@@ -189,13 +164,6 @@ void Game::start(int argc, char **argv) {
 				if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
 					std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
 					Image::setLabel(dst, "CIR", contour);
-				r = boundingRect(contour);
-				//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
-				p4.x = r.x + r.width / 2;
-				p4.y = r.y + r.height / 2;
-				bool4 = true;
-
-				// }
 			}
 		}
 
@@ -204,26 +172,13 @@ void Game::start(int argc, char **argv) {
 		// Draw game
 		cv::imshow("dst", dst);
 
-		if (bool1 && bool2 && bool3 &bool4) {
+		if (vectRect.size()>=4) {
+
+			p11 = nearest(vectRect, Point2i(640,0));
+			p12 = nearest(vectRect, Point2i(0, 0));
+			p13 = nearest(vectRect, Point2i(0, 480));
+			p14 = nearest(vectRect, Point2i(640, 480));
 			
-			p11 = p1;
-			p12 = p2;
-			p13 = p3;
-			p14 = p4;
-
-			/*p0.x = p1.x;
-			p0.y = p1.y;
-			objRef.push_back(p0);
-			p0.x = p2.x;
-			p0.y = p2.y;
-			objRef.push_back(p0);
-			p0.x = p3.x;
-			p0.y = p3.y;
-			objRef.push_back(p0);
-			p0.x = p4.x;
-			p0.y = p4.y;
-			objRef.push_back(p0);*/
-
 			initialisation = true;
 			cout<<"FIN INITIALISATION"<<endl;
 		}
@@ -233,17 +188,16 @@ void Game::start(int argc, char **argv) {
 
 
 
-	
-
-
-
-
-
-
 
 
     // Loop
     while (cvWaitKey(1) != 'q') {
+
+		if (cvWaitKey(1) == 'r') {
+			initialisationDetection(capture, p11, p12, p13, p14);
+
+		}
+
         // Refresh webcam image
         capture >> src;
 		
@@ -260,7 +214,7 @@ void Game::start(int argc, char **argv) {
 		int right = rightestPoint(p11, p12, p13, p14);
 		int left = leftestPoint(p11, p12, p13, p14);
 
-		
+		eps2=0.15*dist(p11, p12);
 		applyMask(bw, high, low, right, left, eps2).copyTo(bw);
         // Display canny image
         cv::imshow("bw", bw);
@@ -271,14 +225,8 @@ void Game::start(int argc, char **argv) {
 
         src.copyTo(dst);
 
-		//Haut
-
-		
-
-		bool1 = false;		
-		bool2 = false;
-		bool3 = false;
-		bool4 = false;
+	
+		vectRect.clear();
 
 
         for (auto &contour : contours) {
@@ -292,63 +240,26 @@ void Game::start(int argc, char **argv) {
                 continue;
             }
 
-            if (approx.size() == 3) {
-                Image::setLabel(dst, "TRI", contour);  // Triangles
-				r = boundingRect(contour);
+			if (approx.size() >= 4 && approx.size() <= 6) {
+				// Number of vertices of polygonal curve
+				int vtc = static_cast<int>(approx.size());
 
-				//if ((r.x > p3.x - eps && r.x<p3.x + eps && r.y>p3.y - eps && r.y < p3.y + eps) || p3.x == 0) {
-					p3.x = r.x + r.width / 2;
-					p3.y = r.y + r.height / 2;
-					bool3 = true;
-				//}
-            }
-            else if (approx.size() >= 4 && approx.size() <= 6) {
-                // Number of vertices of polygonal curve
-                int vtc = static_cast<int>(approx.size());
-
-                // Use the degrees obtained above and the number of vertices
-                // to determine the shape of the contour
-                if (vtc == 4) {
-                    Image::setLabel(dst, "RECKT", contour);
+				// Use the degrees obtained above and the number of vertices
+				// to determine the shape of the contour
+				if (vtc == 4) {
+					Image::setLabel(dst, "RECKT", contour);
 					r = boundingRect(contour);
-					//if ((r.x > p1.x - eps && r.x<p1.x + eps && r.y>p1.y - eps && r.y < p1.y + eps) || p1.x == 0) {
-						p1.x = r.x + r.width / 2;
-						p1.y = r.y + r.height / 2;
-						bool1 = true;
 
-					//}
+					/*if (squareIsBlack(src(r), 20)) {
+						pRect.x = r.x + r.width / 2;
+						pRect.y = r.y + r.height / 2;
+						vectRect.push_back(pRect);
+					}*/
+					pRect.x = r.x + r.width / 2;
+					pRect.y = r.y + r.height / 2;
+					vectRect.push_back(pRect);
 				}
-                else if (vtc == 5) {
-                    Image::setLabel(dst, "PENTA", contour);
-                }
-                else if (vtc == 6) {
-                    Image::setLabel(dst, "HEXA", contour);
-					r = boundingRect(contour);
-					//if ((r.x > p2.x - eps && r.x<p2.x + eps && r.y>p2.y - eps && r.y < p2.y + eps) || p2.x == 0) {
-						p2.x = r.x + r.width / 2;
-						p2.y = r.y + r.height / 2;
-						bool2 = true;
-
-					//}
-                }
-            }
-            else {
-                // Detect and label circles
-                double area = cv::contourArea(contour);
-                cv::Rect r = cv::boundingRect(contour);
-                int radius = r.width / 2;
-
-                if (std::abs(1 - ((double) r.width / r.height)) <= 0.2 &&
-                    std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
-                    Image::setLabel(dst, "CIR", contour);
-					r = boundingRect(contour);
-					//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
-						p4.x = r.x + r.width / 2;
-						p4.y = r.y + r.height / 2;
-						bool4 = true;
-
-					// }
-            }
+			}
         }
 
 		line(dst, p11, p12, Scalar(0, 255, 0), 3);
@@ -359,32 +270,28 @@ void Game::start(int argc, char **argv) {
 		// Draw game
 		cv::imshow("dst", dst);
 
-		if (bool1 && bool2 && bool3 &bool4) {
-			
+		if (vectRect.size() >= 4) {
 
-
-
-
-			if (p1.x > p11.x - eps && p1.x<p11.x + eps && p1.y>p11.y - eps && p1.y < p11.y + eps &&
-				p2.x>p12.x - eps && p2.x<p12.x + eps && p2.y>p12.y - eps && p2.y < p12.y + eps &&
-				p3.x>p13.x - eps && p3.x<p13.x + eps && p3.y>p13.y - eps && p3.y < p13.y + eps &&
-				p4.x>p14.x - eps && p4.x<p14.x + eps && p4.y>p14.y - eps && p4.y < p14.y + eps) {
-				compteur++;
-			}
-			else compteur = 0;
-			if (compteur == 2) {
+			p1 = nearest(vectRect, p11);
+			p2 = nearest(vectRect, p12);
+			p3 = nearest(vectRect, p13);
+			p4 = nearest(vectRect, p14);
+	
+			if (dist(p1, p11) < eps3 && dist(p2, p12) < eps3 && dist(p3, p13) < eps3 && dist(p4, p14) < eps3) {
+				objCapture.clear();
+				objCapture.push_back(p1);
+				objCapture.push_back(p2);
+				objCapture.push_back(p3);
+				objCapture.push_back(p4);
 				p11 = p1;
 				p12 = p2;
 				p13 = p3;
 				p14 = p4;
 
-				objCapture.clear();
-				objCapture.push_back(p11);
-				objCapture.push_back(p12);
-				objCapture.push_back(p13);
-				objCapture.push_back(p14);
-				compteur = 0;
+				eps3 = 0.25*dist(p1, p2);
+				cout << eps3 << endl;
 			}
+
 		}
 
 		if (objCapture.size() == 4)
@@ -450,6 +357,152 @@ Mat Game::applyMask(Mat bw, int high, int low, int right, int left, int eps) {
 	bitwise_and(bw, mask, dest);
 	return dest;
 }
+
+
+
+Point2i Game::nearest(vector<Point2i> vecRect, Point2i target) {
+	Point2i ref = vecRect[0];
+	double distmin = dist(vecRect[0], target);
+	for (int i = 1;i < vecRect.size();i++) {
+		if (dist(target, vecRect[i]) < distmin) {
+			distmin = dist(target, vecRect[i]);
+			ref = vecRect[i];
+		}
+	}
+
+	return ref;
+}
+
+double Game::dist(Point2i p1, Point2i p2){
+	
+	return sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
+}
+
+int Game::random(int min, int max) {
+	default_random_engine gen;
+	uniform_int_distribution<int> interval(min, max);
+	return interval(gen);
+}
+
+bool Game::squareIsBlack(Mat square, int nbRandomPoints = 20) {
+	int cptNoir = 0;
+	for (int i = 0; i < nbRandomPoints; i++) {
+		int xRandom = random(1, square.rows);
+		int yRandom = random(1, square.cols);
+		
+		if (square.at<Vec3b>(xRandom, yRandom)[0] < 100 && square.at<Vec3b>(xRandom, yRandom)[1] < 100 && square.at<Vec3b>(xRandom, yRandom)[3] < 100) {
+			cptNoir++;
+		}
+	}
+
+	return cptNoir >= 0.95*nbRandomPoints;
+}
+
+
+
+void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &p12, Point2i &p13, Point2i &p14) {
+	Image src;
+	Image gray;
+	Image bw;
+	Image dst;
+	vector<std::vector<cv::Point>> contours;
+	vector<cv::Point> approx;
+	vector<Point2i> vectRect;
+	Rect r;
+	Point2i pRect;
+
+	cout << "reinitialisation" << endl;
+
+	bool initialisation = false;
+	while (cvWaitKey(10) != 'q' && initialisation == false) {
+
+		//initialisation
+		capture >> src;
+
+
+		// Convert to grayscale
+		cv::cvtColor(src, gray, CV_BGR2GRAY);
+
+		// Use Canny instead of threshold to catch squares with gradient shading
+		blur(gray, bw, Size(3, 3));
+		cv::Canny(gray, bw, 80, 240, 3);
+
+		// Display canny image
+		cv::imshow("bw", bw);
+
+		// Find contours
+		cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+		src.copyTo(dst);
+
+		vectRect.clear();
+
+		for (auto &contour : contours) {
+
+			// Approximate contour with accuracy proportional
+			// to the contour perimeter
+			cv::approxPolyDP(cv::Mat(contour), approx, cv::arcLength(cv::Mat(contour), true) * 0.02, true);
+
+			// Skip small or non-convex objects
+			if (std::fabs(cv::contourArea(contour)) < 100 || !cv::isContourConvex(approx)) {
+				continue;
+			}
+
+			if (approx.size() == 3) {
+				Image::setLabel(dst, "TRI", contour);  // Triangles
+			}
+			else if (approx.size() >= 4 && approx.size() <= 6) {
+				// Number of vertices of polygonal curve
+				int vtc = static_cast<int>(approx.size());
+
+				// Use the degrees obtained above and the number of vertices
+				// to determine the shape of the contour
+				if (vtc == 4) {
+					Image::setLabel(dst, "RECKT", contour);
+					r = boundingRect(contour);
+
+					pRect.x = r.x + r.width / 2;
+					pRect.y = r.y + r.height / 2;
+					vectRect.push_back(pRect);
+
+				}
+				else if (vtc == 5) {
+					Image::setLabel(dst, "PENTA", contour);
+				}
+				else if (vtc == 6) {
+					Image::setLabel(dst, "HEXA", contour);
+				}
+			}
+			else {
+				// Detect and label circles
+				double area = cv::contourArea(contour);
+				cv::Rect r = cv::boundingRect(contour);
+				int radius = r.width / 2;
+
+				if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
+					std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
+					Image::setLabel(dst, "CIR", contour);
+			}
+		}
+
+
+
+		// Draw game
+		cv::imshow("dst", dst);
+
+		if (vectRect.size() >= 4) {
+
+			p11 = nearest(vectRect, Point2i(640, 0));
+			p12 = nearest(vectRect, Point2i(0, 0));
+			p13 = nearest(vectRect, Point2i(0, 480));
+			p14 = nearest(vectRect, Point2i(640, 480));
+
+			initialisation = true;
+			cout << "FIN REINITIALISATION" << endl;
+		}
+	}
+}
+
 
 void Game::stop() {
 
