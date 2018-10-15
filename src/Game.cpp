@@ -33,6 +33,7 @@ void Game::start(int argc, char **argv) {
     Image dst;
 
 	Mat toad;
+	Mat wallPoints;
 	Mat final;
 
     vector<std::vector<cv::Point>> contours;
@@ -79,21 +80,26 @@ void Game::start(int argc, char **argv) {
 	p0.y = 370;
 	objRef.push_back(p0);*/
 
-	p0.x = 199;
-	p0.y = 100;
-	objRef.push_back(p0);
-	p0.x = 100;
-	p0.y = 100;
-	objRef.push_back(p0);
-	p0.x = 100;
-	p0.y = 160;
-	objRef.push_back(p0);
-	p0.x = 199;
-	p0.y = 160;
-	objRef.push_back(p0);
+	//p0.x = 199;
+	//p0.y = 100;
+	//objRef.push_back(p0);
+	//p0.x = 100;
+	//p0.y = 100;
+	//objRef.push_back(p0);
+	//p0.x = 100;
+	//p0.y = 160;
+	//objRef.push_back(p0);
+	//p0.x = 199;
+	//p0.y = 160;
+	//objRef.push_back(p0);
 
 	bool initialisation;
 
+
+	while (cvWaitKey(10) != ' ') {
+		capture >> src;
+		imshow("dst", src);
+	}
 
 	initialisation = false;
 	while (cvWaitKey(10) != 'q' && initialisation == false) {
@@ -178,7 +184,13 @@ void Game::start(int argc, char **argv) {
 			p12 = nearest(vectRect, Point2i(0, 0));
 			p13 = nearest(vectRect, Point2i(0, 480));
 			p14 = nearest(vectRect, Point2i(640, 480));
-			
+
+			objRef.push_back(p11);
+			objRef.push_back(p12);
+			objRef.push_back(p13);
+			objRef.push_back(p14);
+			wallPoints = getWallsMat(src, p12, p14);
+
 			initialisation = true;
 			cout<<"FIN INITIALISATION"<<endl;
 		}
@@ -214,7 +226,7 @@ void Game::start(int argc, char **argv) {
 		int right = rightestPoint(p11, p12, p13, p14);
 		int left = leftestPoint(p11, p12, p13, p14);
 
-		eps2=0.15*dist(p11, p12);
+		eps2=0.20*dist(p11, p12);
 		applyMask(bw, high, low, right, left, eps2).copyTo(bw);
         // Display canny image
         cv::imshow("bw", bw);
@@ -289,7 +301,6 @@ void Game::start(int argc, char **argv) {
 				p14 = p4;
 
 				eps3 = 0.25*dist(p1, p2);
-				cout << eps3 << endl;
 			}
 
 		}
@@ -303,7 +314,7 @@ void Game::start(int argc, char **argv) {
 
 
 			try {
-				warpPerspective(toad, final, h, final.size());
+				warpPerspective(wallPoints, final, h, final.size());
 			}
 			catch (std::exception const& e)
 			{
@@ -419,7 +430,6 @@ void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &
 		//initialisation
 		capture >> src;
 
-
 		// Convert to grayscale
 		cv::cvtColor(src, gray, CV_BGR2GRAY);
 
@@ -448,10 +458,7 @@ void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &
 				continue;
 			}
 
-			if (approx.size() == 3) {
-				Image::setLabel(dst, "TRI", contour);  // Triangles
-			}
-			else if (approx.size() >= 4 && approx.size() <= 6) {
+			if (approx.size() >= 4 && approx.size() <= 6) {
 				// Number of vertices of polygonal curve
 				int vtc = static_cast<int>(approx.size());
 
@@ -466,26 +473,8 @@ void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &
 					vectRect.push_back(pRect);
 
 				}
-				else if (vtc == 5) {
-					Image::setLabel(dst, "PENTA", contour);
-				}
-				else if (vtc == 6) {
-					Image::setLabel(dst, "HEXA", contour);
-				}
-			}
-			else {
-				// Detect and label circles
-				double area = cv::contourArea(contour);
-				cv::Rect r = cv::boundingRect(contour);
-				int radius = r.width / 2;
-
-				if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
-					std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
-					Image::setLabel(dst, "CIR", contour);
 			}
 		}
-
-
 
 		// Draw game
 		cv::imshow("dst", dst);
@@ -501,6 +490,57 @@ void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &
 			cout << "FIN REINITIALISATION" << endl;
 		}
 	}
+}
+
+Mat Game::getWallsMat(Mat src, Point left_up, Point right_down) {
+
+	//	Cloud of points to return to do GL Walls
+	vector<Point> wall_pts;
+
+
+	//	MAT for Zone2Jeu -> labirinth
+	Mat zone2Jeu, zone2Jeu_gray, zone2Jeu_blur, zone2Jeu_canny;
+
+	//	cut the src img to take the labirinth only
+	zone2Jeu = src(Rect(left_up, right_down));
+
+	//	init gray, blur and canny of zone2Jeu
+	cvtColor(zone2Jeu, zone2Jeu_gray, CV_BGR2GRAY);
+	GaussianBlur(zone2Jeu_gray, zone2Jeu_blur, Size(3, 3), 0, 0);
+	Canny(zone2Jeu_blur, zone2Jeu_canny, 100, 30, 3);
+
+
+	imshow("zonecanny", zone2Jeu_canny);
+	// Use Canny instead of threshold to catch squares with gradient shading
+	imshow("zone", zone2Jeu);
+
+	Image zone;
+	zone2Jeu.copyTo(zone);
+
+
+
+	// Amelioration de detection des points de depart et darrive
+	/*
+	*	TODO : USE MASK TO CUT THE CANNY IMG AND FIND DEPART POINT AND ARRIVE POINT
+	*/
+
+
+
+
+
+	//	DETECTION WALL BY CANNY
+	for (int row = 0; row < zone2Jeu_canny.rows; row++) {
+		for (int col = 0; col < zone2Jeu_canny.cols; col++) {
+			uchar color = zone2Jeu_canny.at<uchar>(row, col);
+			if (color > 127) {
+				circle(zone, Point(col, row), 1, Scalar(0, 255, 0));
+				wall_pts.push_back(Point(col, row));
+			}
+		}
+	}
+
+	return zone2Jeu_canny;
+
 }
 
 
