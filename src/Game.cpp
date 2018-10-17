@@ -24,6 +24,7 @@
 using namespace std;
 using namespace cv;
 
+
 void controls_GL(GLFWwindow* GL_window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
@@ -43,8 +44,73 @@ void def_carre(void)
 
 }
 
+void def_axes(void)
+{
+	//	X axe
+	glBegin(GL_LINES);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glVertex2f(-1.0f, 0.0f);
+	glVertex2f(1.0f, 0.0f);
+	glEnd();
 
-GLFWwindow* init_GL(int width = 640, int height = 480) {
+	//	Y axe
+	glBegin(GL_LINES);
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glVertex2f(0.0f, 1.0f);
+	glVertex2f(0.0f, -1.0f);
+	glEnd();
+
+	//	Z axe
+	glBegin(GL_LINES);
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(0.0f, 0.0f, -1.0f);
+	glEnd();
+}
+
+void def_walls(Mat cloud) {
+	glBegin(GL_POINTS);
+	glColor3f(1.0f, 1.0f, 1.0f);
+
+	for (int row = 0; row < cloud.rows; row++) {
+		for (int col = 0; col < cloud.cols; col++) {
+			uchar intensity = cloud.at<uchar>(row, col);
+			
+			if (intensity != 0) {
+				float x = (float)col / (float)cloud.cols;
+				float y = -(float)row / (float)cloud.rows;
+				//cout << "X : " << x << " Y : " << y << endl;
+				glVertex3f(x, y, 0);
+			}
+
+		}
+	}
+	glEnd();
+
+}
+
+vector<uchar> Mat_to_Array(Mat img) {
+	vector<uchar> vec_img;
+	for (int col = 0; col < img.cols; col++) {
+		for (int row = 0; row < img.rows; row++) {
+
+			Vec3b color = img.at<Vec3b>(row, col);
+
+			vec_img.push_back(color[2]); // R
+			vec_img.push_back(color[1]); // G
+			vec_img.push_back(color[0]); // B
+
+
+		}
+	}
+
+	return vec_img;
+}
+
+
+
+
+GLFWwindow* init_GL(int width = 800, int height = 800) {
 
 	//	Init the library
 	if (!glfwInit()) {
@@ -72,9 +138,10 @@ GLFWwindow* init_GL(int width = 640, int height = 480) {
 
 
 	glEnable(GL_DEPTH_TEST); // Depth Testing
-	glDepthFunc(GL_LEQUAL);
-	glDisable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+
+	//glDepthFunc(GL_LEQUAL);
+	//glDisable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	return GL_window;
 };
@@ -82,25 +149,39 @@ GLFWwindow* init_GL(int width = 640, int height = 480) {
 
 
 int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
+
+	// Scale to window size
+	GLint windowWidth, windowHeight;
+	glfwGetWindowSize(GL_window, &windowWidth, &windowHeight);
+	glViewport(0, 0, windowWidth, windowHeight);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//	Set PROJECTION
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(100, (double)windowWidth / (double)windowHeight, 0.1f, 100.0f);
+
+	//	Set MODELVIEW
+	glMatrixMode(GL_MODELVIEW);
+	gluLookAt(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+
 	while (!glfwWindowShouldClose(GL_window)) {
 
-		// Scale to window size
-		GLint windowWidth, windowHeight;
-		glfwGetWindowSize(GL_window, &windowWidth, &windowHeight);
-		glViewport(0, 0, windowWidth, windowHeight);
 
-		// Draw stuff
-		glClearColor(0.0, 0.8, 0.3, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glMatrixMode(GL_PROJECTION_MATRIX);
-		glLoadIdentity();
-		gluPerspective(45, (double)windowWidth / (double)windowHeight, 0.1f, 100.0f);
+		/*
+		*	DRAW STUFF
+		*/
+		def_axes();
 
-		glMatrixMode(GL_MODELVIEW_MATRIX);
-		glTranslatef(0, 0, -5);
-
-		def_carre();
+		glPushMatrix();
+		glTranslatef(-0.5f, 0.5f, 0.0f);
+		def_walls(cloud);
+		glPopMatrix();
 
 		// Update Screen
 		glfwSwapBuffers(GL_window);
@@ -123,8 +204,27 @@ void Game::start(int argc, char **argv) {
 	//cv::Mat src = cv::imread("MAZEtte.png");
 
 	GLFWwindow *win = init_GL(640,480);
-	Mat a, b;
-	draw_GL(win, a, b);
+	Mat a;
+
+	// echequier
+	int blockSize = 40;
+	int imageSize = blockSize * 8;
+	Mat chessBoard(imageSize, imageSize, CV_8UC1, Scalar::all(0));
+	unsigned char color = 0;
+
+	for (int i = 0; i < imageSize; i = i + blockSize) {
+		color = ~color;
+		for (int j = 0; j < imageSize; j = j + blockSize) {
+			Mat ROI = chessBoard(Rect(i, j, blockSize, blockSize));
+			ROI.setTo(Scalar::all(color));
+			color = ~color;
+		}
+	}
+
+	//imshow("test", chessBoard);
+
+
+	draw_GL(win, a, chessBoard);
 
     Image src;
     Image gray;
