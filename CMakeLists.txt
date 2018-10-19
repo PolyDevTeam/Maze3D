@@ -13,6 +13,7 @@ if(BUILD_GAME)
 
     set(SOURCE_FILES
             src/main.cpp
+			src/GL.cpp
             src/Pos.cpp
             src/Ball.cpp
             src/Map.cpp
