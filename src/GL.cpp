@@ -44,22 +44,22 @@ void def_axes(void)
 	//	X axe
 	glBegin(GL_LINES);
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(-1.0f, 0.0f);
-	glVertex2f(1.0f, 0.0f);
+	glVertex2f(-1000.0f, 0.0f);
+	glVertex2f(1000.0f, 0.0f);
 	glEnd();
 
 	//	Y axe
 	glBegin(GL_LINES);
 	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex2f(0.0f, 1.0f);
-	glVertex2f(0.0f, -1.0f);
+	glVertex2f(0.0f, 1000.0f);
+	glVertex2f(0.0f, -1000.0f);
 	glEnd();
 
 	//	Z axe
 	glBegin(GL_LINES);
 	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(0.0f, 0.0f, 1000.0f);
+	glVertex3f(0.0f, 0.0f, -1000.0f);
 	glEnd();
 }
 
@@ -72,8 +72,8 @@ void def_walls(Mat cloud) {
 			uchar intensity = cloud.at<uchar>(row, col);
 
 			if (intensity != 0) {
-				float x = (float)col / (float)cloud.cols;
-				float y = -(float)row / (float)cloud.rows;
+				float x = (float)col / 10.0f;
+				float y = -(float)row / 10.0f;
 				//cout << "X : " << x << " Y : " << y << endl;
 				glVertex3f(x, y, 0);
 			}
@@ -131,7 +131,7 @@ std::vector<uchar> Mat_to_Array(Mat img) {
 
 
 
-GLFWwindow* init_GL(int width = 800, int height = 800) {
+GLFWwindow* init_GL(int width = 1280, int height = 720) {
 
 	//	Init the library
 	if (!glfwInit()) {
@@ -183,12 +183,12 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 	//	Set PROJECTION
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(100, (double)windowWidth / (double)windowHeight, 0.1f, 100.0f);
+	gluPerspective(100, (double)windowWidth / (double)windowHeight, 0.1f, 10000.0f);
 
 	//	Set MODELVIEW
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 
 	// init texture
@@ -199,25 +199,25 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 
 
 	// Create Texture
-	glGenTextures(1, &tex);
+	//glGenTextures(1, &tex);
 
 	// Bind the texture to the texture space
-	glBindTexture(GL_TEXTURE_2D, tex); // 2d texture (x and y size)
+	//glBindTexture(GL_TEXTURE_2D, tex); // 2d texture (x and y size)
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // scale linearly when image bigger than texture
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // scale linearly when image smalled than texture
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // scale linearly when image bigger than texture
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // scale linearly when image smalled than texture
 
 	//cv::Mat texture_cv = cv::imread("MAZEtte.png");
-	cv::Mat texture_cv = cloud.clone();
+	//cv::Mat texture_cv = cloud.clone();
 
 	// READ the image and use it at texture
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image,
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_cv.cols, texture_cv.rows, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, texture_cv.data);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_cv.cols, texture_cv.rows, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, texture_cv.data);
 
 
 	// choose the texture to use.
-	glBindTexture(GL_TEXTURE_2D, tex);
+	//glBindTexture(GL_TEXTURE_2D, tex);
 
 
 
@@ -237,15 +237,16 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 		*/
 		def_axes();
 
+		glPushMatrix();
+		glRotatef(45.0f, 1.0f, 0, 0);
+		glTranslatef(-cloud.cols/20, cloud.rows/20, 0.0f);
+		def_walls(cloud);
+		glPopMatrix();
+
 		//glPushMatrix();
 		//glTranslatef(-0.5f, 0.5f, 0.0f);
-		//def_walls(cloud);
+		//draw_frame();
 		//glPopMatrix();
-
-		glPushMatrix();
-		//glTranslatef(-0.5f, 0.5f, 0.0f);
-		draw_frame();
-		glPopMatrix();
 
 		// Update Screen
 		glfwSwapBuffers(GL_window);
