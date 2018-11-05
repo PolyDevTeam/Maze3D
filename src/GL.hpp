@@ -17,3 +17,5 @@ static void draw_frame();
 
 
 std::vector<uchar> Mat_to_Array(cv::Mat img);
+
+int test_GL(void);

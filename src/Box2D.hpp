@@ -7,3 +7,7 @@
 
 b2World initBox2D(float g_x = 0.0, float g_y = 0.0);
 void createCircle(b2World& world, float x, float y, float radius);
+
+
+
+int test_Box2D(void);

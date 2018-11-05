@@ -26,3 +26,15 @@ void createCircle(b2World& world, float x, float y, float radius) {
 	body->CreateFixture(&fixture_def);
 
 }
+
+
+int test_Box2D(void) {
+	b2World world = initBox2D();
+	createCircle(world, 0, 1, 1);
+	createCircle(world, 1, 1, 1);
+	std::cout << "test creation de body, nombre creer : " << world.GetBodyCount() << std::endl;
+	if (world.GetBodyCount == 2) {
+		return 1;
+	}
+	else return -1;
+}

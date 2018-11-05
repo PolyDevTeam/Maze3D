@@ -98,10 +98,10 @@ void draw_frame() {
 	float x = 0.5;
 	float y = 0.5;
 
-	glTexCoord2f(0.0f, 0.0f); glVertex2f(-x, -y);
-	glTexCoord2f(0.0f, 1.0f); glVertex2f(x, -y);
-	glTexCoord2f(1.0f, 1.0f); glVertex2f(x, y);
-	glTexCoord2f(1.0f, 0.0f); glVertex2f(-x, y);
+	glTexCoord2f(0.0f, 0.0f); glVertex2f(-x, y);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f(-x, -y);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f(x, -y);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f(x, y);
 
 	glEnd();
 
@@ -194,37 +194,6 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 	// init texture
 
 		// Clear color and depth buffers
-	GLuint tex;
-
-
-
-	// Create Texture
-	//glGenTextures(1, &tex);
-
-	// Bind the texture to the texture space
-	//glBindTexture(GL_TEXTURE_2D, tex); // 2d texture (x and y size)
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // scale linearly when image bigger than texture
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // scale linearly when image smalled than texture
-
-	//cv::Mat texture_cv = cv::imread("MAZEtte.png");
-	//cv::Mat texture_cv = cloud.clone();
-
-	// READ the image and use it at texture
-	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image,
-	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_cv.cols, texture_cv.rows, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, texture_cv.data);
-
-
-	// choose the texture to use.
-	//glBindTexture(GL_TEXTURE_2D, tex);
-
-
-
-
-
-
-
 
 
 	while (!glfwWindowShouldClose(GL_window)) {
@@ -258,8 +227,99 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 	}
 
 
-	glDeleteTextures(1, &tex);
 	glfwDestroyWindow(GL_window);
 	glfwTerminate();
 	return 0;
+}
+
+
+int test_GL(void) {
+	// Init Game variables
+	cv::Mat src = cv::imread("MAZEtte.png");
+
+	GLFWwindow *win = init_GL(640,480);
+	Mat a;
+
+	//echequier
+	int blockSize = 40;
+	int imageSize = blockSize * 8;
+	Mat chessBoard(imageSize, imageSize, CV_8UC3, Scalar::all(0));
+	unsigned char color = 0;
+
+	for (int i = 0; i < imageSize; i = i + blockSize) {
+		color = ~color;
+		for (int j = 0; j < imageSize; j = j + blockSize) {
+			Mat ROI = chessBoard(Rect(i, j, blockSize, blockSize));
+			ROI.setTo(Scalar::all(color));
+			color = ~color;
+		}
+	}
+
+	imshow("test", chessBoard);
+
+	//	Scale to window size
+	GLint windowWidth, windowHeight;
+	glfwGetWindowSize(win, &windowWidth, &windowHeight);
+	glViewport(0, 0, windowWidth, windowHeight);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//	Set PROJECTION
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(100, (double)windowWidth / (double)windowHeight, 0.1f, 10000.0f);
+
+	//	Set MODELVIEW
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+	GLuint tex;
+
+	// Create Texture
+	glGenTextures(1, &tex);
+
+	// Bind the texture to the texture space
+	glBindTexture(GL_TEXTURE_2D, tex); // 2d texture (x and y size)
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // scale linearly when image bigger than texture
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // scale linearly when image smalled than texture
+
+	//cv::Mat texture_cv = cv::imread("MAZEtte.png");
+	cv::Mat texture_cv = chessBoard.clone();
+	
+	// READ the image and use it at texture
+	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image,
+	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_cv.cols, texture_cv.rows, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, texture_cv.data);
+
+
+	// choose the texture to use.
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	while (!glfwWindowShouldClose(win)) {
+
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		/*
+		*	DRAW STUFF
+		*/
+		def_axes();
+
+		draw_frame();
+
+		// Update Screen
+		glfwSwapBuffers(win);
+
+		// Check for any input, or window movement
+		glfwPollEvents();
+
+
+	}
+	glDeleteTextures(1, &tex);
+	glfwDestroyWindow(win);
+	glfwTerminate();
+	return 1;
 }

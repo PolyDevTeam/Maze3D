@@ -34,42 +34,21 @@ using namespace cv;
 
 void Game::start(int argc, char **argv) {
 
-	//b2World world = initBox2D();
-	//createCircle(world, 0, 1, 1);
-	//createCircle(world, 1, 1, 1);
-
-	//cout << "test creation de body, nombre creer : " << world.GetBodyCount() << endl;
-	//while (1)
-	//{
-
-	//}
-
-
-    // Init Game variables
-	//cv::Mat src = cv::imread("MAZEtte.png");
-
-	//GLFWwindow *win = init_GL(640,480);
-	//Mat a;
-
-	// echequier
-	int blockSize = 40;
-	int imageSize = blockSize * 8;
-	Mat chessBoard(imageSize, imageSize, CV_8UC3, Scalar::all(0));
-	unsigned char color = 0;
-
-	for (int i = 0; i < imageSize; i = i + blockSize) {
-		color = ~color;
-		for (int j = 0; j < imageSize; j = j + blockSize) {
-			Mat ROI = chessBoard(Rect(i, j, blockSize, blockSize));
-			ROI.setTo(Scalar::all(color));
-			color = ~color;
-		}
+	/*
+	*	TESTS DES BRIQUES GL ET BOX2D
+	*/
+	if (test_GL() == 1) {
+		cout << "Test GL OK" << endl;
 	}
+	else stop();
+	if (test_Box2D() == 1) {
+		cout << "Test BOX2D OK" << endl;
+	}
+	else stop();
+	/*
+	*	FIN DES TESTS
+	*/
 
-	//imshow("test", chessBoard);
-
-
-	//draw_GL(win, a, chessBoard);
 
 	Image src, gray, bw;
     Image dst;
