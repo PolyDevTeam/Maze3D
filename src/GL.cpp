@@ -64,8 +64,18 @@ void def_axes(void)
 }
 
 void def_walls(Mat cloud) {
+	//sol
+	glBegin(GL_QUADS);
+		glColor3f(0.23f, 0.12f, 0.09f);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, -cloud.rows / 10.f, 0);
+		glVertex3f(cloud.cols / 10.f, -cloud.rows / 10.f, 0);
+		glVertex3f(cloud.cols / 10.f, 0, 0);
+	glEnd();
+
+	//murs
 	glBegin(GL_LINES);
-		glColor3f(1.0f, 1.0f, 1.0f);
+		glColor3f(0.0f, 0.5f, 0.0f);
 
 		for (int row = 0; row < cloud.rows; row++) {
 			for (int col = 0; col < cloud.cols; col++) {
@@ -74,7 +84,6 @@ void def_walls(Mat cloud) {
 				if (intensity != 0) {
 					float x = (float)col / 10.0f;
 					float y = -(float)row / 10.0f;
-					//cout << "X : " << x << " Y : " << y << endl;
 					glVertex3f(x, y, 0);
 					glVertex3f(x, y, 5);
 				}
@@ -171,7 +180,7 @@ GLFWwindow* init_GL(int width = 1280, int height = 720) {
 
 
 
-int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
+int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Point2i finish) {
 
 	//	Scale to window size
 	GLint windowWidth, windowHeight;
@@ -205,12 +214,22 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 		/*
 		*	DRAW STUFF
 		*/
-		def_axes();
+		//def_axes();
 
 		glPushMatrix();
-		glRotatef(20.0f, 1.0f, 0, 0);
-		glTranslatef(-cloud.cols/20, cloud.rows/20, 0.0f);
-		def_walls(cloud);
+			glRotatef(-20.0f, 1.0f, 0, 0);
+			glTranslatef(-cloud.cols/20, cloud.rows/20, 0.0f);
+			def_walls(cloud);
+			//indication temporaire du départ et de l'arrivee
+			glBegin(GL_LINES);
+				glColor3f(1.0f, 0.0f, 0.0f);
+				glVertex3f(start.x/10.0f, -start.y/10.0f, 0);
+				glVertex3f(start.x/10.0f, -start.y/10.0f, 10);
+
+				glColor3f(0.0f, 0.0f, 1.0f);
+				glVertex3f(finish.x / 10.0f, -finish.y / 10.0f, 0);
+				glVertex3f(finish.x / 10.0f, -finish.y / 10.0f, 10);
+			glEnd();
 		glPopMatrix();
 
 		//glPushMatrix();

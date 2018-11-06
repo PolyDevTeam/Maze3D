@@ -68,14 +68,8 @@ void Game::start(int argc, char **argv) {
 	Point2i pRect;
 
 
-	Point2i p1;
-	Point2i p2;
-	Point2i p3;
-	Point2i p4;
-	Point2i p11;
-	Point2i p12;
-	Point2i p13;
-	Point2i p14;
+	Point2i p1, p2, p3, p4, p11, p12, p13, p14;
+	Point2i start, finish;
 	Rect r;
 	vector<Point2i> objCapture;
 	vector<Point2i> objRef;
@@ -92,8 +86,6 @@ void Game::start(int argc, char **argv) {
 	//480 x 640
 
 	bool initialisation = false;
-	/*bool initialisation_carre = false;
-	bool initialisation_DA = false;*/
 	bool quit = false;
 
 	/*
@@ -248,6 +240,14 @@ void Game::start(int argc, char **argv) {
 				objRef.push_back(p13);
 				objRef.push_back(p14);
 
+				//sauvegarde du point de depart et d'arrivee
+				start = r_c.tl();
+				finish = r_t.tl();
+				start.x -= p12.x;
+				start.y -= p12.y;
+				finish.x -= p12.x;
+				finish.y -= p12.y;
+
 				wallPoints = getWallsMat(src_canny, p12, p14, r_t, r_c);
 
 				//validation de l'initialisation
@@ -380,8 +380,6 @@ void Game::start(int argc, char **argv) {
 		{
 			cout << "YES" << endl;
 			h = findHomography(objCapture, objRef, RANSAC);
-
-			
 			cout << h << endl << endl;
 
 			try {
@@ -395,7 +393,7 @@ void Game::start(int argc, char **argv) {
 			cv::imshow("final", final);
 
 			/*GLFWwindow *win = init_GL(640, 480);
-			draw_GL(win, h, wallPoints);*/
+			draw_GL(win, h, wallPoints, start, finish);*/
 		}
 
 		//vérifie si l'utilisateur veut quitter
@@ -479,16 +477,13 @@ int Game::random(int min, int max) {
 
 bool Game::squareIsBlack(Mat square, int nbRandomPoints = 20) {
 	int cptNoir = 0;
-	for (int i = 0; i < nbRandomPoints; i++) {
-		int xRandom = random(1, square.rows);
-		int yRandom = random(1, square.cols);
-		
-		if (square.at<Vec3b>(xRandom, yRandom)[0] < 100 && square.at<Vec3b>(xRandom, yRandom)[1] < 100 && square.at<Vec3b>(xRandom, yRandom)[3] < 100) {
-			cptNoir++;
-		}
-	}
 
-	return cptNoir >= 0.95*nbRandomPoints;
+	for (int i = 0; i < square.rows; i++)
+		for(int j = 0; j < square.cols; j++)
+			if (square.at<Vec3b>(i, j)[0] < 100 && square.at<Vec3b>(i, j)[1] < 100 && square.at<Vec3b>(i, j)[3] < 100)
+				cptNoir++;
+
+	return cptNoir >= 0.95*square.rows*square.cols;
 }
 
 Mat Game::getWallsMat(Mat src, Point left_up, Point right_down, Rect rt, Rect rc) {
