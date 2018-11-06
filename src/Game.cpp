@@ -70,7 +70,7 @@ void Game::start(int argc, char **argv) {
 
 	Point2i p1, p2, p3, p4, p11, p12, p13, p14;
 	Point2i start, finish;
-	Rect r;
+	Rect r, zone_jeu;
 	vector<Point2i> objCapture;
 	vector<Point2i> objRef;
 	vector<Point2i> vectRect;
@@ -142,6 +142,9 @@ void Game::start(int argc, char **argv) {
 					pRect.x = r.x + r.width / 2;
 					pRect.y = r.y + r.height / 2;
 					vectRect.push_back(pRect);
+
+					if (!squareIsBlack(src(r)))
+						zone_jeu = r;
 
 				}
 				else if (vtc == 5) {
@@ -248,15 +251,18 @@ void Game::start(int argc, char **argv) {
 				finish.x -= p12.x;
 				finish.y -= p12.y;
 
-				wallPoints = getWallsMat(src_canny, p12, p14, r_t, r_c);
-
-				//validation de l'initialisation
-				char bon = 'k';
-				while (bon != 'y' && bon != 'n' && bon != 'r' && bon !=' ' && bon != 'q')
+				if (zone_jeu.width != 0)
 				{
-					bon = cv::waitKey(0);
-					if(bon == 'y' ||bon ==' ')
-						initialisation = true;
+					wallPoints = getWallsMat(src_canny, zone_jeu, r_t, r_c);
+
+					//validation de l'initialisation
+					char bon = 'k';
+					while (bon != 'y' && bon != 'n' && bon != 'r' && bon != ' ' && bon != 'q')
+					{
+						bon = cv::waitKey(0);
+						if (bon == 'y' || bon == ' ')
+							initialisation = true;
+					}
 				}
 			}
 		}
@@ -475,18 +481,18 @@ int Game::random(int min, int max) {
 	return interval(gen);
 }
 
-bool Game::squareIsBlack(Mat square, int nbRandomPoints = 20) {
+bool Game::squareIsBlack(Mat square) {
 	int cptNoir = 0;
 
 	for (int i = 0; i < square.rows; i++)
 		for(int j = 0; j < square.cols; j++)
-			if (square.at<Vec3b>(i, j)[0] < 100 && square.at<Vec3b>(i, j)[1] < 100 && square.at<Vec3b>(i, j)[3] < 100)
+			if (square.at<Vec3b>(i, j)[0] < 150 && square.at<Vec3b>(i, j)[1] < 150 && square.at<Vec3b>(i, j)[3] < 150)
 				cptNoir++;
 
-	return cptNoir >= 0.95*square.rows*square.cols;
+	return cptNoir >= 0.80*square.rows*square.cols;
 }
 
-Mat Game::getWallsMat(Mat src, Point left_up, Point right_down, Rect rt, Rect rc) {
+Mat Game::getWallsMat(Mat src, Rect zone, Rect rt, Rect rc) {
 
 	Mat zone2Jeu_canny, src_canny;
 
@@ -497,7 +503,7 @@ Mat Game::getWallsMat(Mat src, Point left_up, Point right_down, Rect rt, Rect rc
 	rectangle(src_canny, rt, Scalar(0, 0, 0), FILLED);
 
 	//	cut the canny img to take the maze only
-	zone2Jeu_canny = src_canny(Rect(left_up, right_down));
+	zone2Jeu_canny = src_canny(zone);
 
 	imshow("zonecanny", zone2Jeu_canny);
 

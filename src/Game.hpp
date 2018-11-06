@@ -35,10 +35,10 @@ public:
 	cv::Mat applyMask(cv::Mat, int, int, int, int, int);
 
 
-	bool squareIsBlack(cv::Mat, int);
+	bool squareIsBlack(cv::Mat);
 
 
-	cv::Mat getWallsMat(cv::Mat, cv::Point, cv::Point, cv::Rect, cv::Rect);
+	cv::Mat getWallsMat(cv::Mat, cv::Rect, cv::Rect, cv::Rect);
 
 
 private:
