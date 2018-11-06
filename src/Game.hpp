@@ -38,9 +38,6 @@ public:
 	bool squareIsBlack(cv::Mat, int);
 
 
-	void initialisationDetection(cv::VideoCapture capture, cv::Point2i &p11, cv::Point2i &p12, cv::Point2i &p13, cv::Point2i &p14);
-
-
 	cv::Mat getWallsMat(cv::Mat, cv::Point, cv::Point, cv::Rect, cv::Rect);
 
 

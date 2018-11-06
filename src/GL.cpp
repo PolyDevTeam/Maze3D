@@ -64,22 +64,23 @@ void def_axes(void)
 }
 
 void def_walls(Mat cloud) {
-	glBegin(GL_POINTS);
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_LINES);
+		glColor3f(1.0f, 1.0f, 1.0f);
 
-	for (int row = 0; row < cloud.rows; row++) {
-		for (int col = 0; col < cloud.cols; col++) {
-			uchar intensity = cloud.at<uchar>(row, col);
+		for (int row = 0; row < cloud.rows; row++) {
+			for (int col = 0; col < cloud.cols; col++) {
+				uchar intensity = cloud.at<uchar>(row, col);
 
-			if (intensity != 0) {
-				float x = (float)col / 10.0f;
-				float y = -(float)row / 10.0f;
-				//cout << "X : " << x << " Y : " << y << endl;
-				glVertex3f(x, y, 0);
+				if (intensity != 0) {
+					float x = (float)col / 10.0f;
+					float y = -(float)row / 10.0f;
+					//cout << "X : " << x << " Y : " << y << endl;
+					glVertex3f(x, y, 0);
+					glVertex3f(x, y, 5);
+				}
+
 			}
-
 		}
-	}
 	glEnd();
 
 }
@@ -207,7 +208,7 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud) {
 		def_axes();
 
 		glPushMatrix();
-		glRotatef(45.0f, 1.0f, 0, 0);
+		glRotatef(20.0f, 1.0f, 0, 0);
 		glTranslatef(-cloud.cols/20, cloud.rows/20, 0.0f);
 		def_walls(cloud);
 		glPopMatrix();

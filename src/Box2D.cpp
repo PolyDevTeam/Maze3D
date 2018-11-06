@@ -28,7 +28,7 @@ void createCircle(b2World& world, float x, float y, float radius) {
 }
 
 
-int test_Box2D(void) {
+/*int test_Box2D(void) {
 	b2World world = initBox2D();
 	createCircle(world, 0, 1, 1);
 	createCircle(world, 1, 1, 1);
@@ -37,4 +37,4 @@ int test_Box2D(void) {
 		return 1;
 	}
 	else return -1;
-}
+}*/

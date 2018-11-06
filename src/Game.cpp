@@ -37,7 +37,7 @@ void Game::start(int argc, char **argv) {
 	/*
 	*	TESTS DES BRIQUES GL ET BOX2D
 	*/
-	if (test_GL() == 1) {
+	/*if (test_GL() == 1) {
 		cout << "Test GL OK" << endl;
 	}
 	else stop();
@@ -50,11 +50,11 @@ void Game::start(int argc, char **argv) {
 	*/
 
 
-	Image src, gray, bw;
+	Image src, gray, src_canny;
     Image dst;
 
 
-	Image cut, cut_src, cut_gray, cut_bw;
+	Image cut, cut_src, cut_gray, cut_src_canny;
 
 
 	Mat toad;
@@ -91,25 +91,15 @@ void Game::start(int argc, char **argv) {
     VideoCapture capture(0);
 	//480 x 640
 
-	toad = imread("C:\\Users\\Stéphane\\Pictures\\bad_toad.png", 1);
-
-	bool initialisation;
-
-
-	while (cvWaitKey(10) != ' ') {
-		capture >> src;
-		imshow("dst", src);
-	}
-
-	initialisation = false;
-	bool initialisation_carre = false;
-	bool initialisation_DA = false;
+	bool initialisation = false;
+	/*bool initialisation_carre = false;
+	bool initialisation_DA = false;*/
+	bool quit = false;
 
 	/*
-	*	BEGIN INITIALISATION
+	*	DEBUT INITIALISATION
 	*/
-	while (cvWaitKey(10) != 'q' && initialisation == false) {
-
+	while (!quit  && !initialisation ) {
 
 
 		//initialisation
@@ -120,14 +110,14 @@ void Game::start(int argc, char **argv) {
 		cv::cvtColor(src, gray, CV_BGR2GRAY);
 
 		// Use Canny instead of threshold to catch squares with gradient shading
-		blur(gray, bw, Size(3, 3));
-		cv::Canny(gray, bw, 80, 240, 3);
+		blur(gray, src_canny, Size(3, 3));
+		cv::Canny(gray, src_canny, 80, 240, 3);
 
 		// Display canny image
-		cv::imshow("bw", bw);
+		cv::imshow("src_canny", src_canny);
 
 		// Find contours
-		cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+		cv::findContours(src_canny.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
 		src.copyTo(dst);
 
@@ -155,8 +145,8 @@ void Game::start(int argc, char **argv) {
 				// to determine the shape of the contour
 				if (vtc == 4) {
 					Image::setLabel(dst, "RECKT", contour);
+					//Récupération des coordonnées du centre du rectangle détecté
 					r = boundingRect(contour);
-
 					pRect.x = r.x + r.width / 2;
 					pRect.y = r.y + r.height / 2;
 					vectRect.push_back(pRect);
@@ -183,11 +173,10 @@ void Game::start(int argc, char **argv) {
 			}
 		}
 
+		// Affichage caméra avec label
+		cv::imshow("Cam", dst);
 
-
-		// Draw game
-		cv::imshow("dst", dst);
-
+		//détection des 4 repères et de la zone de jeu
 		if (vectRect.size() >= 5) {
 
 			vector<std::vector<cv::Point>> contours;
@@ -195,7 +184,7 @@ void Game::start(int argc, char **argv) {
 			Rect r_t, r_c;
 
 			// Find contours
-			cv::findContours(bw.clone(), contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+			cv::findContours(src_canny.clone(), contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 
 			for (auto &contour : contours) {
 
@@ -243,51 +232,48 @@ void Game::start(int argc, char **argv) {
 
 				}
 			}
-
+			//affichage caméra avec label triangle + cercle
 			imshow("tri-cercle", dst);
 
+			//détection du triangle et du cercle
 			if (r_c.width != 0 && r_t.width != 0) {
-
+				//on détermine les 4 rectangles servant de point de repère pour le labyrinthe puis on les sauvegarde
 				p11 = nearest(vectRect, Point2i(640, 0));
 				p12 = nearest(vectRect, Point2i(0, 0));
 				p13 = nearest(vectRect, Point2i(0, 480));
 				p14 = nearest(vectRect, Point2i(640, 480));
-
+				objRef.clear();
 				objRef.push_back(p11);
 				objRef.push_back(p12);
 				objRef.push_back(p13);
 				objRef.push_back(p14);
 
+				wallPoints = getWallsMat(src_canny, p12, p14, r_t, r_c);
 
-
-
-
-				wallPoints = getWallsMat(src, p12, p14, r_t, r_c);
-
-				initialisation = true;
-				cout << "FIN INITIALISATION" << endl;
+				//validation de l'initialisation
+				char bon = 'k';
+				while (bon != 'y' && bon != 'n' && bon != 'r' && bon !=' ' && bon != 'q')
+				{
+					bon = cv::waitKey(0);
+					if(bon == 'y' ||bon ==' ')
+						initialisation = true;
+				}
 			}
 		}
-
-
+		//vérifie si l'utilisateur veut quitter
+		if (cvWaitKey(10) == 'q')
+			quit = true;
 	}
 
 
 
-
-	/*
-	*	FIN INITIALISATION
-	*/
-
-
-
     // Loop
-    while (cvWaitKey(1) != 'q') {
+    while (!quit) {
 
-		if (cvWaitKey(1) == 'r') {
+		/*if (cvWaitKey(0) == 'r') {
 			initialisationDetection(capture, p11, p12, p13, p14);
 
-		}
+		}*/
 
         // Refresh webcam image
         capture >> src;
@@ -298,7 +284,7 @@ void Game::start(int argc, char **argv) {
 
         // Use Canny instead of threshold to catch squares with gradient shading
         blur(gray, gray, Size(3, 3));
-        cv::Canny(gray, bw, 80, 240, 3);
+        cv::Canny(gray, src_canny, 80, 240, 3);
 
 		int high = highestPoint(p11, p12, p13, p14);
 		int low = lowestPoint(p11, p12, p13, p14);
@@ -306,13 +292,13 @@ void Game::start(int argc, char **argv) {
 		int left = leftestPoint(p11, p12, p13, p14);
 
 		eps2=0.20*dist(p11, p12);
-		applyMask(bw, high, low, right, left, eps2).copyTo(bw);
+		applyMask(src_canny, high, low, right, left, eps2).copyTo(src_canny);
         // Display canny image
-        cv::imshow("bw", bw);
+        cv::imshow("src_canny", src_canny);
 
 
         // Find contours
-        cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        cv::findContours(src_canny.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
         src.copyTo(dst);
 
@@ -397,25 +383,24 @@ void Game::start(int argc, char **argv) {
 
 			
 			cout << h << endl << endl;
-			while (1) {
+
+			try {
+				warpPerspective(wallPoints, final, h, final.size());
+			}
+			catch (std::exception const& e)
+			{
+				cerr << "ERREUR : " << e.what() << endl;
 			}
 
-		//	try {
-		//		warpPerspective(wallPoints, final, h, final.size());
-		//	}
-		//	catch (std::exception const& e)
-		//	{
-		//		cerr << "ERREUR : " << e.what() << endl;
-		//	}
+			cv::imshow("final", final);
 
-		//	cv::imshow("final", final);
-
-		//	while (cvWaitKey(10) != ' ') {
-		//	}
-
-		//	GLFWwindow *win = init_GL(640, 480);
-		//	draw_GL(win, h, wallPoints);
+			/*GLFWwindow *win = init_GL(640, 480);
+			draw_GL(win, h, wallPoints);*/
 		}
+
+		//vérifie si l'utilisateur veut quitter
+		if (cvWaitKey(10) == 'q')
+			quit = true;
     }
 
     // Stop the game
@@ -430,6 +415,7 @@ int Game::highestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	if (p14.y < higher) higher = p14.y;
 	return higher;
 }
+
 int Game::lowestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	int low = p11.y;
 
@@ -438,6 +424,7 @@ int Game::lowestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	if (p14.y > low) low = p14.y;
 	return low;
 }
+
 int Game::rightestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	int right = p11.x;
 
@@ -446,6 +433,7 @@ int Game::rightestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	if (p14.x > right) right = p14.x;
 	return right;
 }
+
 int Game::leftestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	int left = p11.y;
 
@@ -454,16 +442,17 @@ int Game::leftestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
 	if (p14.x < left) left = p14.x;
 	return left;
 }
-Mat Game::applyMask(Mat bw, int high, int low, int right, int left, int eps) {
+
+Mat Game::applyMask(Mat src_canny, int high, int low, int right, int left, int eps) {
 	Mat dest;
-	Mat mask = Mat::zeros(bw.rows, bw.cols, bw.type());
+	Mat mask = Mat::zeros(src_canny.rows, src_canny.cols, src_canny.type());
 	rectangle(mask, Rect(left-eps, high-eps, right - left + 2*eps, low - high + 2*eps), Scalar(255, 255, 255), FILLED);
-	bitwise_and(bw, mask, dest);
+	bitwise_and(src_canny, mask, dest);
 	return dest;
 }
 
 
-
+//retourne le point dans vectRect le plus proche de target
 Point2i Game::nearest(vector<Point2i> vecRect, Point2i target) {
 	Point2i ref = vecRect[0];
 	double distmin = dist(vecRect[0], target);
@@ -502,148 +491,22 @@ bool Game::squareIsBlack(Mat square, int nbRandomPoints = 20) {
 	return cptNoir >= 0.95*nbRandomPoints;
 }
 
-
-
-void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &p12, Point2i &p13, Point2i &p14) {
-	Image src;
-	Image gray;
-	Image bw;
-	Image dst;
-	vector<std::vector<cv::Point>> contours;
-	vector<cv::Point> approx;
-	vector<Point2i> vectRect;
-	Rect r;
-	Point2i pRect;
-
-	cout << "reinitialisation" << endl;
-
-	bool initialisation = false;
-	while (cvWaitKey(10) != 'q' && initialisation == false) {
-
-		//initialisation
-		capture >> src;
-
-		// Convert to grayscale
-		cv::cvtColor(src, gray, CV_BGR2GRAY);
-
-		// Use Canny instead of threshold to catch squares with gradient shading
-		blur(gray, bw, Size(3, 3));
-		cv::Canny(gray, bw, 80, 240, 3);
-
-		// Display canny image
-		cv::imshow("bw", bw);
-
-		// Find contours
-		cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-
-		src.copyTo(dst);
-
-		vectRect.clear();
-
-		for (auto &contour : contours) {
-
-			// Approximate contour with accuracy proportional
-			// to the contour perimeter
-			cv::approxPolyDP(cv::Mat(contour), approx, cv::arcLength(cv::Mat(contour), true) * 0.02, true);
-
-			// Skip small or non-convex objects
-			if (std::fabs(cv::contourArea(contour)) < 100 || !cv::isContourConvex(approx)) {
-				continue;
-			}
-
-			if (approx.size() >= 4 && approx.size() <= 6) {
-				// Number of vertices of polygonal curve
-				int vtc = static_cast<int>(approx.size());
-
-				// Use the degrees obtained above and the number of vertices
-				// to determine the shape of the contour
-				if (vtc == 4) {
-					Image::setLabel(dst, "RECKT", contour);
-					r = boundingRect(contour);
-
-					pRect.x = r.x + r.width / 2;
-					pRect.y = r.y + r.height / 2;
-					vectRect.push_back(pRect);
-
-				}
-			}
-		}
-
-		// Draw game
-		cv::imshow("dst", dst);
-
-		if (vectRect.size() >= 4) {
-
-			p11 = nearest(vectRect, Point2i(640, 0));
-			p12 = nearest(vectRect, Point2i(0, 0));
-			p13 = nearest(vectRect, Point2i(0, 480));
-			p14 = nearest(vectRect, Point2i(640, 480));
-
-			initialisation = true;
-			cout << "FIN REINITIALISATION" << endl;
-		}
-	}
-}
-
 Mat Game::getWallsMat(Mat src, Point left_up, Point right_down, Rect rt, Rect rc) {
 
-	//	Cloud of points to return to do GL Walls
-	vector<Point> wall_pts;
+	Mat zone2Jeu_canny, src_canny;
 
+	src.copyTo(src_canny);
 
-	//	MAT for Zone2Jeu -> labirinth
-	Mat zone2Jeu, zone2Jeu_gray, zone2Jeu_blur, zone2Jeu_canny;
-	Mat src_gray, src_blur, src_canny;
-
-	//	Apply Mask to cut circle and triangle
-	//	init gray, blur and canny of zone2Jeu
-	cvtColor(src, src_gray, CV_BGR2GRAY);
-	GaussianBlur(src_gray, src_blur, Size(3, 3), 0, 0);
-	Canny(src_blur, src_canny, 100, 30, 3);
+	//on retire de la zone de jeu le triangle et le cercle matérialisants le départ et l'arrivée
 	rectangle(src_canny, rc, Scalar(0, 0, 0), FILLED);
 	rectangle(src_canny, rt, Scalar(0, 0, 0), FILLED);
 
-	imshow("mask circle_tri", src_canny);
-
-	//	cut the src img to take the labirinth only
-	zone2Jeu = src(Rect(left_up, right_down));
-
-	//	init gray, blur and canny of zone2Jeu
-	cvtColor(zone2Jeu, zone2Jeu_gray, CV_BGR2GRAY);
-	GaussianBlur(zone2Jeu_gray, zone2Jeu_blur, Size(3, 3), 0, 0);
-	Canny(zone2Jeu_blur, zone2Jeu_canny, 100, 30, 3);
-
+	//	cut the canny img to take the maze only
+	zone2Jeu_canny = src_canny(Rect(left_up, right_down));
 
 	imshow("zonecanny", zone2Jeu_canny);
-	// Use Canny instead of threshold to catch squares with gradient shading
-	imshow("zone", zone2Jeu);
-
-
-	Image zone;
-	zone2Jeu.copyTo(zone);
-
-
-
-
-	// Amelioration de detection des points de depart et darrive
-	/*
-	*	TODO : USE MASK TO CUT THE CANNY IMG AND FIND DEPART POINT AND ARRIVE POINT
-	*/
-
-
-	//	DETECTION WALL BY CANNY
-	for (int row = 0; row < zone2Jeu_canny.rows; row++) {
-		for (int col = 0; col < zone2Jeu_canny.cols; col++) {
-			uchar color = zone2Jeu_canny.at<uchar>(row, col);
-			if (color > 127) {
-				circle(zone, Point(col, row), 1, Scalar(0, 255, 0));
-				wall_pts.push_back(Point(col, row));
-			}
-		}
-	}
 
 	return zone2Jeu_canny;
-
 }
 
 void Game::stop() {
