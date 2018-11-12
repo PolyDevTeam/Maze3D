@@ -122,8 +122,8 @@ install:
 # Install bullet
 ############################################################################
 -  |
-  if [[ -z "$(ls -A ${DEPS_DIR}/bullet3/master)" ]]; then
-    mkdir -p ${DEPS_DIR}/opencv
+  if [[ -z "$(ls -A ${DEPS_DIR}/bullet3/bullet3-master)" ]]; then
+    mkdir -p ${DEPS_DIR}/bullet
     travis_retry wget https://github.com/bulletphysics/bullet3/archive/master.zip -P ${DEPS_DIR}/bullet3
     cd ${DEPS_DIR}/bullet3
     unzip -q ${DEPS_DIR}/bullet3/bullet3-master
