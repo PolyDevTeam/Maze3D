@@ -40,6 +40,7 @@ public:
 
 	cv::Mat getWallsMat(cv::Mat, cv::Rect, cv::Rect, cv::Rect);
 
+	void initialisationDetection(cv::VideoCapture capture, cv::Point2i &p11, cv::Point2i &p12, cv::Point2i &p13, cv::Point2i &p14);
 
 private:
     Map map;

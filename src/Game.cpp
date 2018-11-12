@@ -510,6 +510,87 @@ Mat Game::getWallsMat(Mat src, Rect zone, Rect rt, Rect rc) {
 	return zone2Jeu_canny;
 }
 
+void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &p12, Point2i &p13, Point2i &p14) {
+	Image src;
+	Image gray;
+	Image bw;
+	Image dst;
+	vector<std::vector<cv::Point>> contours;
+	vector<cv::Point> approx;
+	vector<Point2i> vectRect;
+	Rect r;
+	Point2i pRect;
+
+	cout << "reinitialisation" << endl;
+
+	bool initialisation = false;
+	while (cvWaitKey(10) != 'q' && initialisation == false) {
+
+		//initialisation
+		capture >> src;
+
+		// Convert to grayscale
+		cv::cvtColor(src, gray, CV_BGR2GRAY);
+
+		// Use Canny instead of threshold to catch squares with gradient shading
+		blur(gray, bw, Size(3, 3));
+		cv::Canny(gray, bw, 80, 240, 3);
+
+		// Display canny image
+		cv::imshow("bw", bw);
+
+		// Find contours
+		cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+		src.copyTo(dst);
+
+		vectRect.clear();
+
+		for (auto &contour : contours) {
+
+			// Approximate contour with accuracy proportional
+			// to the contour perimeter
+			cv::approxPolyDP(cv::Mat(contour), approx, cv::arcLength(cv::Mat(contour), true) * 0.02, true);
+
+			// Skip small or non-convex objects
+			if (std::fabs(cv::contourArea(contour)) < 100 || !cv::isContourConvex(approx)) {
+				continue;
+			}
+
+			if (approx.size() >= 4 && approx.size() <= 6) {
+				// Number of vertices of polygonal curve
+				int vtc = static_cast<int>(approx.size());
+
+				// Use the degrees obtained above and the number of vertices
+				// to determine the shape of the contour
+				if (vtc == 4) {
+					Image::setLabel(dst, "RECKT", contour);
+					r = boundingRect(contour);
+
+					pRect.x = r.x + r.width / 2;
+					pRect.y = r.y + r.height / 2;
+					vectRect.push_back(pRect);
+
+				}
+			}
+		}
+
+		// Draw game
+		cv::imshow("dst", dst);
+
+		if (vectRect.size() >= 4) {
+
+			p11 = nearest(vectRect, Point2i(640, 0));
+			p12 = nearest(vectRect, Point2i(0, 0));
+			p13 = nearest(vectRect, Point2i(0, 480));
+			p14 = nearest(vectRect, Point2i(640, 480));
+
+			initialisation = true;
+			cout << "FIN REINITIALISATION" << endl;
+		}
+	}
+}
+
 void Game::stop() {
 
 }
