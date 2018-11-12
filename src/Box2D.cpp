@@ -1,10 +1,10 @@
 #include "Box2D.hpp"
 
-b2World initBox2D(float g_x, float g_y)
-{
-	return 	b2World(b2Vec2(g_x, g_y));
-}
-
+//b2World initBox2D(float g_x, float g_y)
+//{
+//	return b2World(b2Vec2(g_x, g_y));
+//}
+/*
 void createCircle(b2World& world, float x, float y, float radius) {
 	//	On definit le body phisique
 	b2BodyDef body_def;
@@ -26,8 +26,7 @@ void createCircle(b2World& world, float x, float y, float radius) {
 	body->CreateFixture(&fixture_def);
 
 }
-
-
+*/
 /*int test_Box2D(void) {
 	b2World world = initBox2D();
 	createCircle(world, 0, 1, 1);

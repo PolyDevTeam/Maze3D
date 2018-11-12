@@ -68,10 +68,32 @@ if(BUILD_GAME)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
 
-#        if(NOT EXISTS /usr/local/include/glm)
-#            target_include_directories(Maze3D PUBLIC ${DEPS_PATH}/glm/include)
+        #setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet ${DEPS_PATH}/library/libbullet.a ${DEPS_PATH}/bullet/include _STATIC)
+
+        find_package(Bullet)
+
+        if(Bullet_FOUND)
+            message(${BULLET_LIBRARIES})
+            setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet ${BULLET_LIBRARIES} ${Bullet_INCLUDE_DIRS} _STATIC)
+
+#            target_link_libraries(Maze3D ${BULLET_LIBRARIES})
+        else()
+            message("BULLET NOT FOUND")
+        endif()
+
+#        find_package(Boost 1.36.0 COMPONENTS date_time filesystem system ...)
+#        if(Boost_FOUND)
+#            include_directories(${Boost_INCLUDE_DIRS})
+#            add_executable(foo foo.cc)
+#            target_link_libraries(foo ${Boost_LIBRARIES})
 #        endif()
-#
+
+
+        # if(NOT EXISTS /usr/local/include/bullet)
+#        setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet /usr/local/lib/bullet/libBullet3Collision.so /usr/local/include/bullet _STATIC)
+            #target_include_directories(Maze3D PUBLIC ${DEPS_PATH}/bullet/include)
+        #endif()
+
 #        if(NOT EXISTS /usr/local/include/SOIL)
 #            target_include_directories(Maze3D PUBLIC ${DEPS_PATH}/soil/include)
 #        endif()
