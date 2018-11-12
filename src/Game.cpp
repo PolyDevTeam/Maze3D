@@ -276,10 +276,8 @@ void Game::start(int argc, char **argv) {
     // Loop
     while (!quit) {
 
-		/*if (cvWaitKey(0) == 'r') {
+		if (cvWaitKey(1) == 'r')
 			initialisationDetection(capture, p11, p12, p13, p14);
-
-		}*/
 
         // Refresh webcam image
         capture >> src;
@@ -403,7 +401,7 @@ void Game::start(int argc, char **argv) {
 		}
 
 		//vérifie si l'utilisateur veut quitter
-		if (cvWaitKey(10) == 'q')
+		if (cvWaitKey(1) == 'q')
 			quit = true;
     }
 
@@ -536,9 +534,6 @@ void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &
 		blur(gray, bw, Size(3, 3));
 		cv::Canny(gray, bw, 80, 240, 3);
 
-		// Display canny image
-		cv::imshow("bw", bw);
-
 		// Find contours
 		cv::findContours(bw.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
@@ -574,9 +569,6 @@ void Game::initialisationDetection(VideoCapture capture, Point2i &p11, Point2i &
 				}
 			}
 		}
-
-		// Draw game
-		cv::imshow("dst", dst);
 
 		if (vectRect.size() >= 4) {
 
