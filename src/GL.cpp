@@ -20,12 +20,12 @@ void resize_GL(GLFWwindow* window, int new_width, int new_height) {
 	//	Set PROJECTION
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(100, (double)new_width / (double)new_height, 0.1f, 100.0f);
+	gluPerspective(100, (double)new_width / (double)new_height, 0.1f, 10000.0f);
 
 	//	Set MODELVIEW
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 0.0, 250.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 };
 
 void def_carre(void)
@@ -66,30 +66,30 @@ void def_axes(void)
 void def_walls(Mat cloud) {
 	//sol
 	glBegin(GL_QUADS);
-		glColor3f(0.23f, 0.12f, 0.09f);
-		glVertex3f(0, 0, 0);
-		glVertex3f(0, -cloud.rows / 10.f, 0);
-		glVertex3f(cloud.cols / 10.f, -cloud.rows / 10.f, 0);
-		glVertex3f(cloud.cols / 10.f, 0, 0);
+	glColor3f(0.23f, 0.12f, 0.09f);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, -cloud.rows / 1.f, 0);
+	glVertex3f(cloud.cols / 1.f, -cloud.rows / 1.f, 0);
+	glVertex3f(cloud.cols / 1.f, 0, 0);
 	glEnd();
 
 	//murs
 	glBegin(GL_LINES);
-		glColor3f(0.0f, 0.5f, 0.0f);
+	glColor3f(0.0f, 0.5f, 0.0f);
 
-		for (int row = 0; row < cloud.rows; row++) {
-			for (int col = 0; col < cloud.cols; col++) {
-				uchar intensity = cloud.at<uchar>(row, col);
+	for (int row = 0; row < cloud.rows; row++) {
+		for (int col = 0; col < cloud.cols; col++) {
+			uchar intensity = cloud.at<uchar>(row, col);
 
-				if (intensity != 0) {
-					float x = (float)col / 10.0f;
-					float y = -(float)row / 10.0f;
-					glVertex3f(x, y, 0);
-					glVertex3f(x, y, 5);
-				}
-
+			if (intensity != 0) {
+				float x = (float)col / 1.0f;
+				float y = -(float)row / 1.0f;
+				glVertex3f(x, y, 0);
+				glVertex3f(x, y, 50);
 			}
+
 		}
+	}
 	glEnd();
 
 }
@@ -198,7 +198,7 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 	//	Set MODELVIEW
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0, 0.0, 250.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
 
 	// init texture
@@ -217,19 +217,19 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 		//def_axes();
 
 		glPushMatrix();
-			glRotatef(-20.0f, 1.0f, 0, 0);
-			glTranslatef(-cloud.cols/20, cloud.rows/20, 0.0f);
-			def_walls(cloud);
-			//indication temporaire du départ et de l'arrivee
-			glBegin(GL_LINES);
-				glColor3f(1.0f, 0.0f, 0.0f);
-				glVertex3f(start.x/10.0f, -start.y/10.0f, 0);
-				glVertex3f(start.x/10.0f, -start.y/10.0f, 10);
+		glRotatef(-20.0f, 1.0f, 0, 0);
+		glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
+		def_walls(cloud);
+		//indication temporaire du départ et de l'arrivee
+		glBegin(GL_LINES);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(start.x / 1.0f, -start.y / 1.0f, 0);
+		glVertex3f(start.x / 1.0f, -start.y / 1.0f, 100);
 
-				glColor3f(0.0f, 0.0f, 1.0f);
-				glVertex3f(finish.x / 10.0f, -finish.y / 10.0f, 0);
-				glVertex3f(finish.x / 10.0f, -finish.y / 10.0f, 10);
-			glEnd();
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 0);
+		glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 100);
+		glEnd();
 		glPopMatrix();
 
 		//glPushMatrix();
@@ -257,7 +257,7 @@ int test_GL(void) {
 	// Init Game variables
 	cv::Mat src = cv::imread("MAZEtte.png");
 
-	GLFWwindow *win = init_GL(640,480);
+	GLFWwindow *win = init_GL(640, 480);
 	Mat a;
 
 	//echequier
@@ -308,7 +308,7 @@ int test_GL(void) {
 
 	//cv::Mat texture_cv = cv::imread("MAZEtte.png");
 	cv::Mat texture_cv = chessBoard.clone();
-	
+
 	// READ the image and use it at texture
 	// 2d texture, level of detail 0 (normal), 3 components (red, green, blue), x size from image, y size from image,
 	// border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
