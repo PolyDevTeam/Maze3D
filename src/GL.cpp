@@ -51,19 +51,20 @@ void def_axes(void)
 	//	Y axe
 	glBegin(GL_LINES);
 	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex2f(0.0f, 1000.0f);
 	glVertex2f(0.0f, -1000.0f);
+	glVertex2f(0.0f, 1000.0f);
 	glEnd();
 
 	//	Z axe
 	glBegin(GL_LINES);
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(0.0f, 0.0f, 1000.0f);
+	glColor3f(1.0f, 1.0f, 0.0f);
 	glVertex3f(0.0f, 0.0f, -1000.0f);
+	glVertex3f(0.0f, 0.0f, 1000.0f);
 	glEnd();
 }
 
 void def_walls(Mat cloud) {
+
 	//sol
 	glBegin(GL_QUADS);
 	glColor3f(0.23f, 0.12f, 0.09f);
@@ -84,6 +85,7 @@ void def_walls(Mat cloud) {
 			if (intensity != 0) {
 				float x = (float)col / 1.0f;
 				float y = -(float)row / 1.0f;
+				glNormal3f(0.0f, 0.0f, 1.0f);
 				glVertex3f(x, y, 0);
 				glVertex3f(x, y, 50);
 			}
@@ -178,6 +180,43 @@ GLFWwindow* init_GL(int width = 1280, int height = 720) {
 	return GL_window;
 };
 
+void init_Lumiere() {
+	//	Definition des lumieres
+
+
+
+	GLfloat lumiere_ambiant[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat lumiere_blanche[4] = { 1.0f, 0.2f, 0.2f, 1.0f };
+	GLfloat lumiere_specular[4] = {1.0f, 0.2f, 0.2f, 1.0f};
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lumiere_ambiant);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lumiere_blanche);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lumiere_blanche);
+
+
+	GLfloat mat_emission[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat mat_ambiant[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	GLfloat mat_diffuse[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat mat_specular[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat mat_shininess[1] = { 900.0f };
+
+	//glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat_emission);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambiant);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+
+	GLfloat position_lumiere[4] = { 0.0f, 0.0f, 200.0f, 1.0f };
+	glLightfv(GL_LIGHT0, GL_POSITION, position_lumiere);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_COLOR_MATERIAL);
+	//glDisable(GL_COLOR_MATERIAL);
+
+}
 
 
 int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Point2i finish) {
@@ -205,6 +244,10 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 
 		// Clear color and depth buffers
 
+	//	init Lumiere
+	init_Lumiere();
+
+
 
 	while (!glfwWindowShouldClose(GL_window)) {
 
@@ -214,10 +257,15 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 		/*
 		*	DRAW STUFF
 		*/
+
+		//glPushMatrix();
+		//glRotatef(-40.0f, 1.0f, 0.0f, 1.0f);
 		//def_axes();
+		//glPopMatrix();
+
 
 		glPushMatrix();
-		glRotatef(-20.0f, 1.0f, 0, 0);
+		glRotatef(-20.0f, 1.0f, 0.0f, 0.0f);
 		glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
 		def_walls(cloud);
 		//indication temporaire du départ et de l'arrivee

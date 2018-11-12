@@ -7,6 +7,7 @@ void controls_GL(GLFWwindow* GL_window, int key, int scancode, int action, int m
 void resize_GL(GLFWwindow* window, int new_width, int new_height);
 
 GLFWwindow* init_GL(int width, int height);
+void init_Lumiere(void);
 int draw_GL(GLFWwindow *GL_window, cv::Mat homography, cv::Mat cloud, cv::Point2i start, cv::Point2i finish);
 
 

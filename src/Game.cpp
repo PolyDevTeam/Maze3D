@@ -398,8 +398,8 @@ void Game::start(int argc, char **argv) {
 
 			cv::imshow("final", final);
 
-			/*GLFWwindow *win = init_GL(640, 480);
-			draw_GL(win, h, wallPoints, start, finish);*/
+			GLFWwindow *win = init_GL(640, 480);
+			draw_GL(win, h, wallPoints, start, finish);
 		}
 
 		//vérifie si l'utilisateur veut quitter
