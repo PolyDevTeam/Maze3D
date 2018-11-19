@@ -15,6 +15,7 @@ if(BUILD_GAME)
             src/main.cpp
 			src/GL.cpp
 			src/Box2D.cpp
+			src/React3D.cpp
             src/Pos.cpp
             src/Ball.cpp
             src/Map.cpp
@@ -69,8 +70,8 @@ if(BUILD_GAME)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
 
         #setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet ${DEPS_PATH}/library/libbullet.a ${DEPS_PATH}/bullet/include _STATIC)
-
         find_package(Bullet)
+		include_directories($(BULLET_INCLUDE_DIRS))
 
         if(Bullet_FOUND)
             message(${BULLET_LIBRARIES})
@@ -116,30 +117,38 @@ if(BUILD_GAME)
     else()
        set(OpenCV_DIR "C:\\opencv\\build")
 
-        SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+       SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
             
-        # OpenCV
-        list(APPEND ${CMAKE_PREFIX_PATH} "C:\\opencv\\build")
+       # OpenCV
+       list(APPEND ${CMAKE_PREFIX_PATH} "C:\\opencv\\build")
 
-        find_package(OpenCV REQUIRED)
-        target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
-        target_link_libraries(Maze3D ${OpenCV_LIBS})
+       find_package(OpenCV REQUIRED)
+       target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
+       target_link_libraries(Maze3D ${OpenCV_LIBS})
+	   #GL
+	   find_package(OpenGL REQUIRED)
+	   target_include_directories(Maze3D PUBLIC ${OPENGL_INCLUDE_DIRS})
+	   target_link_libraries(Maze3D ${OPENGL_LIBRARIES})
+	   #GLFW
+	   SET(GLFW_PATH "C:\\glfw")
+	   target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include")
+	   target_link_libraries(Maze3D "${GLFW_PATH}\\lib-vc2015\\glfw3.lib")
+	   #BOX2D
+	   SET(BOX2D_PATH "C:\\box2d")
+	   target_include_directories(Maze3D PUBLIC "${BOX2D_PATH}\\include\\")
+	   target_link_libraries(Maze3D "${BOX2D_PATH}\\lib\\Box2D.lib")
+	   #BULLET
+	   #SET(BULLET_PATH "C:\\Users\\stamegna\\Desktop\\bullet3-master")
+	   #target_include_directories(Maze3D PUBLIC "${BULLET_PATH}\\src\\")
+	   #target_link_libraries(Maze3D "${BULLET_PATH}\\bin\\BulletCollision_vs2010_x64_release.lib")
+	   #target_link_libraries(Maze3D "${BULLET_PATH}\\bin\\BulletDynamics_vs2010_x64_release.lib")
+	   #target_link_libraries(Maze3D "${BULLET_PATH}\\bin\\LinearMath_vs2010_x64_release.lib")
 
-		#GL
-		find_package(OpenGL REQUIRED)
-		target_include_directories(Maze3D PUBLIC ${OPENGL_INCLUDE_DIRS})
-		target_link_libraries(Maze3D ${OPENGL_LIBRARIES})
-
-
-		#GLFW
-		SET(GLFW_PATH "C:\\glfw")
-		target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include")
-		target_link_libraries(Maze3D "${GLFW_PATH}\\lib-vc2015\\glfw3.lib")
-
-		#BOX2D
-		SET(BOX2D_PATH "C:\\box2d")
-		target_include_directories(Maze3D PUBLIC "${BOX2D_PATH}\\include\\")
-		target_link_libraries(Maze3D "${BOX2D_PATH}\\lib\\Box2D.lib")
+	   #REACTPHYSIC
+	   SET(REACT_PHYSICS_PATH "C:\\Users\\stamegna\\Desktop\\reactphysics3d-0.7.0")
+	   target_include_directories(Maze3D PUBLIC "${REACT_PHYSICS_PATH}\\src\\")
+	   target_link_libraries(Maze3D "${REACT_PHYSICS_PATH}\\build\\lib\\Release\\reactphysics3d.lib")
+	   
 
     endif()
 endif()

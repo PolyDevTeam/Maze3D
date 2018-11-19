@@ -43,7 +43,7 @@ public:
 	void initialisationDetection(cv::VideoCapture capture, cv::Point2i &p11, cv::Point2i &p12, cv::Point2i &p13, cv::Point2i &p14);
 
 private:
-    Map map;
+    //Map map;
 };
 
 #endif /* __GAME_HPP__ */

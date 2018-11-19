@@ -1,17 +1,8 @@
-//#if __APPLE__
-//    #include <OpenGL/gl.h>
-//#else
-//    #include <GL/gl.h>
-//#endif
-
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
-
-//#define GLFW_INCLUDE_GLU
-//#include <GLFW/glfw3.h>
 
 #include <vector>
 #include <iostream>
@@ -20,24 +11,22 @@
 #include <random>
 
 #include "GL.hpp"
-#include "Box2D.hpp"
+#include "React3D.hpp"
 
 #include "Game.hpp"
 #include "Image.hpp"
 
 using namespace std;
 using namespace cv;
-
-
-
-
+using namespace reactphysics3d;
 
 void Game::start(int argc, char **argv) {
 
 	/*
-	*	TESTS DES BRIQUES GL ET BOX2D
+	*	TESTS DES BRIQUES GL, BOX2D ET BULLET
 	*/
-	/*if (test_GL() == 1) {
+	/*
+	if (test_GL() == 1) {
 		cout << "Test GL OK" << endl;
 	}
 	else stop();
@@ -45,6 +34,13 @@ void Game::start(int argc, char **argv) {
 		cout << "Test BOX2D OK" << endl;
 	}
 	else stop();
+	*/
+	//test_BULLET();
+	test_REACT();
+	while (true) {
+		cout << "fin test" << endl;
+	};
+
 	/*
 	*	FIN DES TESTS
 	*/
