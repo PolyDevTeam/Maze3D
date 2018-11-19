@@ -3,7 +3,7 @@
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
-#include <Box2D/Box2D.h>
+//#include <Box2D/Box2D.h>
 
 //#include "reactphysics3d.h"
 
