@@ -1,13 +1,12 @@
 #include "Box2D.hpp"
 #include "opencv2/opencv.hpp"
 
-b2World initBox2D(float g_x, float g_y)
-{
-	return 	b2World(b2Vec2(g_x, g_y));
-}
-
-
-void createCircle(b2World& world, int type, float x, float y, float radius) {
+//b2World initBox2D(float g_x, float g_y)
+//{
+//	return b2World(b2Vec2(g_x, g_y));
+//}
+/*
+void createCircle(b2World& world, float x, float y, float radius) {
 	//	On definit le body phisique
 	b2BodyDef body_def;
 	body_def.position.Set(x, y);
@@ -34,21 +33,6 @@ void createCircle(b2World& world, int type, float x, float y, float radius) {
 	body->CreateFixture(&fixture_def);
 
 }
-
-void makePhysicWalls(b2World& world, cv::Mat cloudWalls) {
-
-	for (int row = 0; row < cloudWalls.rows; row++) {
-		for (int col = 0; col < cloudWalls.cols; col++) {
-			uchar intensity = cloudWalls.at<uchar>(row, col);
-			//	Points Blanc
-			if (intensity != 0) {
-				createCircle(world, 1, col, row, 2);
-			}
-
-		}
-	}
-}
-
 int test_Box2D(void) {
 	b2World world = initBox2D();
 	createCircle(world, 1, 0, 1, 1);
@@ -80,4 +64,4 @@ int test_box2D_Walls(void) {
 	makePhysicWalls(world, chessBoard);
 	std::cout << world.GetBodyCount() << std::endl;
 	return 1;
-}
+}*/
