@@ -13,6 +13,7 @@
 #include "CameraCalibration.hpp"
 
 #include "GL.hpp"
+#include "Bullet3D.hpp"
 
 #include "Game.hpp"
 #include "Image.hpp"
@@ -35,7 +36,7 @@ void Game::start(int argc, char **argv) {
 	}
 	else stop();
 	*/
-	//test_BULLET();
+	//testBullet();
 	//test_REACT();
 	//while (true) {
 	//	cout << "fin test" << endl;
