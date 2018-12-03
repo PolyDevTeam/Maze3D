@@ -131,7 +131,25 @@ if(BUILD_GAME)
 	   target_include_directories(Maze3D PUBLIC "${REACT_PHYSICS_PATH}\\src\\")
 	   target_link_libraries(Maze3D "${REACT_PHYSICS_PATH}\\build\\lib\\Release\\reactphysics3d.lib")
 	   
+     find_package(OpenCV)
+     target_include_directories(Maze3D PUBLIC ${OpenCV_INCLUDE_DIRS})
+     target_link_libraries(Maze3D ${OpenCV_LIBS})
 
+		#GL
+		find_package(OpenGL REQUIRED)
+		target_include_directories(Maze3D PUBLIC ${OPENGL_INCLUDE_DIRS})
+		target_link_libraries(Maze3D ${OPENGL_LIBRARIES})
+
+
+		#GLFW
+		SET(GLFW_PATH "C:\\glfw")
+		target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include")
+		target_link_libraries(Maze3D "${GLFW_PATH}\\lib-vc2015\\glfw3.lib")
+
+		#BOX2D
+		SET(BOX2D_PATH "C:\\box2d")
+		target_include_directories(Maze3D PUBLIC "${BOX2D_PATH}\\include\\")
+		target_link_libraries(Maze3D "${BOX2D_PATH}\\lib\\Box2D.lib")
     endif()
 endif()
 

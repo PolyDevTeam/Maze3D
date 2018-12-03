@@ -3,6 +3,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <GLFW/glfw3.h>
+
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
@@ -14,11 +16,21 @@
 
 #include "GL.hpp"
 
-#include "Game.hpp"
 #include "Image.hpp"
+#include "Game.hpp"
 
 using namespace std;
 using namespace cv;
+
+
+
+void glDraw(Mat Labirinth) {
+
+}
+
+
+
+
 
 void Game::start(int argc, char **argv) {
 
@@ -117,7 +129,6 @@ void Game::start(int argc, char **argv) {
 	*/
 	while (!quit  && !initialisation ) {
 
-
 		//initialisation
 		capture >> src;
 
@@ -183,12 +194,21 @@ void Game::start(int argc, char **argv) {
 				double area = cv::contourArea(contour);
 				cv::Rect r = cv::boundingRect(contour);
 				int radius = r.width / 2;
+				if (radius > 10) {
+					if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 &&
+						std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2)
+						Image::setLabel(dst, "CIR", contour);
+					r = boundingRect(contour);
+					t4 = Size(r.width / 2, r.height / 2);
+					//if ((r.x > p4.x - eps && r.x<p4.x + eps && r.y>p4.y - eps && r.y < p4.y + eps) || p4.x==0) {
+					p4.x = r.x + r.width / 2;
+					p4.y = r.y + r.height / 2;
+					bool4 = true;
+				}
 
 				if (std::abs(1 - ((double)r.width / r.height)) <= 0.2 && std::abs(1 - (area / (CV_PI * (radius * radius)))) <= 0.2) {
 					Image::setLabel(dst, "CIR", contour);
 				}
-
-
 			}
 		}
 
@@ -248,8 +268,11 @@ void Game::start(int argc, char **argv) {
 						r_c = boundingRect(contour);
 					}
 
-
-				}
+	int iSliderValue6 = 2;
+	int iSliderValue7 = 3;
+	int iSliderValue8 = 0.04;
+	int iSliderValue9 = 200;
+        }
 			}
 			//affichage cam�ra avec label triangle + cercle
 			imshow("tri-cercle", dst);
@@ -296,6 +319,23 @@ void Game::start(int argc, char **argv) {
 	}
 
 
+	while (cvWaitKey(1) != 'q') {
+		zone2Jeu.copyTo(zone);
+
+		//	DETECTION WALL BY CANNY
+		for (int row = 0; row < zone2Jeu_canny.rows; row++) {
+			for (int col = 0; col < zone2Jeu_canny.cols; col++) {
+				uchar color = zone2Jeu_canny.at<uchar>(row, col);
+				if (color > 127) {
+					circle(zone, Point(col, row), 1, Scalar(0, 255, 0));
+				}
+			}
+		}
+
+
+		imshow("zone", zone);
+
+	}
 
     // Loop
     while (!quit) {
@@ -444,8 +484,7 @@ void Game::start(int argc, char **argv) {
 			}
 
 			cv::imshow("final", final);
-
-			
+      
 			draw_GL(win, rvec_decomp, wallPoints, start, finish);
 		}
 
