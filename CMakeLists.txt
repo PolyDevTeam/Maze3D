@@ -9,13 +9,12 @@ project(Maze3D)
 if(BUILD_GAME)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-    set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++11")
+    set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++11 -opencv")
 
     set(SOURCE_FILES
             src/main.cpp
 			src/GL.cpp
 			src/Box2D.cpp
-			src/React3D.cpp
             src/Pos.cpp
             src/Ball.cpp
             src/Map.cpp
@@ -65,40 +64,22 @@ if(BUILD_GAME)
     endfunction(setupLib)
 
     if(NOT WIN32)
-        setupLib(Maze3D ${PKG_CONFIG_FOUND} OPENCV opencv ${DEPS_PATH}/opencv/lib/opencv.a ${DEPS_PATH}/opencv/include _STATIC)
-#        setupLib(Maze3D ${PKG_CONFIG_FOUND} ASSIMP assimp ${DEPS_PATH}/assimp/lib/assimp.a ${DEPS_PATH}/assimp/include _STATIC)
+        find_package(OpenCV REQUIRED)
+        target_link_libraries(Maze3D PUBLIC ${OpenCV_LIBS})
+        #setupLib(Maze3D ${PKG_CONFIG_FOUND} OpenCV opencv ${OpenCV_LIBS} ${OpenCV_INCLUDE_DIRS} _STATIC)
+        #setupLib(Maze3D ${PKG_CONFIG_FOUND} OPENCV opencv ${DEPS_PATH}/opencv/lib/opencv.a ${DEPS_PATH}/opencv/include _STATIC)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
         setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
 
-        #setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet ${DEPS_PATH}/library/libbullet.a ${DEPS_PATH}/bullet/include _STATIC)
         find_package(Bullet)
 		include_directories($(BULLET_INCLUDE_DIRS))
 
         if(Bullet_FOUND)
-            message(${BULLET_LIBRARIES})
             setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet ${BULLET_LIBRARIES} ${Bullet_INCLUDE_DIRS} _STATIC)
-
 #            target_link_libraries(Maze3D ${BULLET_LIBRARIES})
         else()
             message("BULLET NOT FOUND")
         endif()
-
-#        find_package(Boost 1.36.0 COMPONENTS date_time filesystem system ...)
-#        if(Boost_FOUND)
-#            include_directories(${Boost_INCLUDE_DIRS})
-#            add_executable(foo foo.cc)
-#            target_link_libraries(foo ${Boost_LIBRARIES})
-#        endif()
-
-
-        # if(NOT EXISTS /usr/local/include/bullet)
-#        setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet /usr/local/lib/bullet/libBullet3Collision.so /usr/local/include/bullet _STATIC)
-            #target_include_directories(Maze3D PUBLIC ${DEPS_PATH}/bullet/include)
-        #endif()
-
-#        if(NOT EXISTS /usr/local/include/SOIL)
-#            target_include_directories(Maze3D PUBLIC ${DEPS_PATH}/soil/include)
-#        endif()
 
         if(UNIX AND NOT APPLE)
             setupLib(Maze3D ${PKG_CONFIG_FOUND} GL glu ${DEPS_PATH}/GL/glu.so ${DEPS_PATH}/GL/include "")
@@ -106,7 +87,7 @@ if(BUILD_GAME)
         endif()
 
         if(APPLE)
-#list(APPEND ${CMAKE_PREFIX_PATH} "/amuhome/s15022364/Desktop/deps")
+            #list(APPEND ${CMAKE_PREFIX_PATH} "/amuhome/s15022364/Desktop/deps")
             target_include_directories(Maze3D PUBLIC ${PROJECT_SOURCE_DIR}/include System/Library/Frameworks)
             find_library(COCOA_LIBRARY Cocoa)
             find_library(OpenGL_LIBRARY OpenGL)

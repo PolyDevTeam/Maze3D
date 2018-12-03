@@ -3,7 +3,6 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
-
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
@@ -14,14 +13,12 @@
 #include "CameraCalibration.hpp"
 
 #include "GL.hpp"
-#include "React3D.hpp"
 
 #include "Game.hpp"
 #include "Image.hpp"
 
 using namespace std;
 using namespace cv;
-using namespace reactphysics3d;
 
 void Game::start(int argc, char **argv) {
 
@@ -164,7 +161,7 @@ void Game::start(int argc, char **argv) {
 				// to determine the shape of the contour
 				if (vtc == 4) {
 					Image::setLabel(dst, "RECKT", contour);
-					//Récupération des coordonnées du centre du rectangle détecté
+					//Rï¿½cupï¿½ration des coordonnï¿½es du centre du rectangle dï¿½tectï¿½
 					r = boundingRect(contour);
 					pRect.x = r.x + r.width / 2;
 					pRect.y = r.y + r.height / 2;
@@ -195,10 +192,10 @@ void Game::start(int argc, char **argv) {
 			}
 		}
 
-		// Affichage caméra avec label
+		// Affichage camï¿½ra avec label
 		cv::imshow("Cam", dst);
 
-		//détection des 4 repères et de la zone de jeu
+		//dï¿½tection des 4 repï¿½res et de la zone de jeu
 		if (vectRect.size() >= 5) {
 
 			vector<std::vector<cv::Point>> contours;
@@ -254,12 +251,12 @@ void Game::start(int argc, char **argv) {
 
 				}
 			}
-			//affichage caméra avec label triangle + cercle
+			//affichage camï¿½ra avec label triangle + cercle
 			imshow("tri-cercle", dst);
 
-			//détection du triangle et du cercle
+			//dï¿½tection du triangle et du cercle
 			if (r_c.width != 0 && r_t.width != 0) {
-				//on détermine les 4 rectangles servant de point de repère pour le labyrinthe puis on les sauvegarde
+				//on dï¿½termine les 4 rectangles servant de point de repï¿½re pour le labyrinthe puis on les sauvegarde
 				p11 = nearest(vectRect, Point2i(640, 0));
 				p12 = nearest(vectRect, Point2i(0, 0));
 				p13 = nearest(vectRect, Point2i(0, 480));
@@ -293,7 +290,7 @@ void Game::start(int argc, char **argv) {
 				}
 			}
 		}
-		//vérifie si l'utilisateur veut quitter
+		//vï¿½rifie si l'utilisateur veut quitter
 		if (cvWaitKey(10) == 'q')
 			quit = true;
 	}
@@ -452,7 +449,7 @@ void Game::start(int argc, char **argv) {
 			draw_GL(win, rvec_decomp, wallPoints, start, finish);
 		}
 
-		//vérifie si l'utilisateur veut quitter
+		//vï¿½rifie si l'utilisateur veut quitter
 		if (cvWaitKey(1) == 'q')
 			quit = true;
     }
@@ -548,7 +545,7 @@ Mat Game::getWallsMat(Mat src, Rect zone, Rect rt, Rect rc) {
 
 	src.copyTo(src_canny);
 
-	//on retire de la zone de jeu le triangle et le cercle matérialisants le départ et l'arrivée
+	//on retire de la zone de jeu le triangle et le cercle matï¿½rialisants le dï¿½part et l'arrivï¿½e
 	rectangle(src_canny, rc, Scalar(0, 0, 0), FILLED);
 	rectangle(src_canny, rt, Scalar(0, 0, 0), FILLED);
 
