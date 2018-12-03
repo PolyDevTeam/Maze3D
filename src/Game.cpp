@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <random>
+#include <typeinfo>  //for 'typeid' to work  
+
+#include "CameraCalibration.hpp"
 
 #include "GL.hpp"
 #include "React3D.hpp"
@@ -36,15 +39,40 @@ void Game::start(int argc, char **argv) {
 	else stop();
 	*/
 	//test_BULLET();
-	test_REACT();
-	while (true) {
-		cout << "fin test" << endl;
-	};
+	//test_REACT();
+	//while (true) {
+	//	cout << "fin test" << endl;
+	//};
 
 	/*
 	*	FIN DES TESTS
 	*/
 
+	char rep;
+
+	FileStorage fs("out_camera_data.xml", FileStorage::READ);
+	if (!fs.isOpened())
+		CameraCalibration::launchCalibration();
+	else
+	{
+		cout << "Voulez-vous relancer la calibration de la camera ? (Y/N)" << endl;
+		cin >> rep;
+		if(rep=='y')
+			CameraCalibration::launchCalibration();
+	}
+	
+
+
+	int width;
+	int height;
+	Mat cameraMatrix;
+
+	fs["opencv_storage"]["image_Width"] >> width;
+	fs["opencv_storage"]["image_Height"] >> height;
+	fs["opencv_storage"]["Camera_Matrix"] >> cameraMatrix;
+	fs.release();
+
+	GLFWwindow *win = init_GL(640, 480);
 
 	Image src, gray, src_canny;
     Image dst;
@@ -72,6 +100,9 @@ void Game::start(int argc, char **argv) {
 	vector<Point2i> vectRect;
 	Mat h;
 	Rect r_t, r_c;
+
+	int solutions;
+	vector<Mat> Rs_decomp, ts_decomp, normals_decomp;
 
 	int eps = 100;
 	int eps2 = 50;
@@ -272,7 +303,7 @@ void Game::start(int argc, char **argv) {
     // Loop
     while (!quit) {
 
-		if (cvWaitKey(1) == 'r')
+		if (cvWaitKey(10) == 'r')
 			initialisationDetection(capture, p11, p12, p13, p14);
 
         // Refresh webcam image
@@ -359,9 +390,8 @@ void Game::start(int argc, char **argv) {
 
 			// Draw game
 			cv::imshow("dst", dst);
-
+			objCapture.clear();
 			if (dist(p1, p11) < eps3 && dist(p2, p12) < eps3 && dist(p3, p13) < eps3 && dist(p4, p14) < eps3) {
-				objCapture.clear();
 				objCapture.push_back(p1);
 				objCapture.push_back(p2);
 				objCapture.push_back(p3);
@@ -382,6 +412,32 @@ void Game::start(int argc, char **argv) {
 			h = findHomography(objCapture, objRef, RANSAC);
 			cout << h << endl << endl;
 
+
+			solutions = decomposeHomographyMat(h, cameraMatrix, Rs_decomp, ts_decomp, normals_decomp);
+			cout << "Decompose homography matrix estimated by findHomography():" << endl << endl;
+			Mat rvec_decomp1;		
+			Mat rvec_decomp2;
+			Mat rvec_decomp;
+
+			for (int i = 0; i < solutions; i++)
+			{
+				Rodrigues(Rs_decomp[i], rvec_decomp);
+				//cout << "Solution " << i << ":" << endl;
+				cout << "rvec from homography decomposition: " << rvec_decomp.t() << endl;
+			}
+
+			Rodrigues(Rs_decomp[0], rvec_decomp1);
+			Rodrigues(Rs_decomp[2], rvec_decomp2);
+			rvec_decomp = rvec_decomp1;
+
+			for (int i = 0;i < 3;i++) {
+				if (abs(rvec_decomp2.at<double>(i, 0)) > abs(rvec_decomp1.at<double>(i, 0))) {
+					rvec_decomp.at<double>(i, 0) = rvec_decomp2.at<double>(i, 0);
+				}
+			}
+			cout << rvec_decomp << endl;
+
+
 			try {
 				warpPerspective(wallPoints, final, h, final.size());
 			}
@@ -392,8 +448,8 @@ void Game::start(int argc, char **argv) {
 
 			cv::imshow("final", final);
 
-			GLFWwindow *win = init_GL(640, 480);
-			draw_GL(win, h, wallPoints, start, finish);
+			
+			draw_GL(win, rvec_decomp, wallPoints, start, finish);
 		}
 
 		//vérifie si l'utilisateur veut quitter
@@ -483,7 +539,7 @@ bool Game::squareIsBlack(Mat square) {
 			if (square.at<Vec3b>(i, j)[0] < 150 && square.at<Vec3b>(i, j)[1] < 150 && square.at<Vec3b>(i, j)[3] < 150)
 				cptNoir++;
 
-	return cptNoir >= 0.80*square.rows*square.cols;
+	return cptNoir >= 0.60*square.rows*square.cols;
 }
 
 Mat Game::getWallsMat(Mat src, Rect zone, Rect rt, Rect rc) {

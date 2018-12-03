@@ -21,7 +21,8 @@ if(BUILD_GAME)
             src/Map.cpp
             src/Wall.cpp
             src/Game.cpp
-            src/Image.cpp)
+            src/Image.cpp
+			src/CameraCalibration.cpp)
 
     add_executable(Maze3D ${SOURCE_FILES})
 
@@ -145,7 +146,7 @@ if(BUILD_GAME)
 	   #target_link_libraries(Maze3D "${BULLET_PATH}\\bin\\LinearMath_vs2010_x64_release.lib")
 
 	   #REACTPHYSIC
-	   SET(REACT_PHYSICS_PATH "C:\\Users\\stamegna\\Desktop\\reactphysics3d-0.7.0")
+	   SET(REACT_PHYSICS_PATH "C:\\reactphysics3d-0.7.0")
 	   target_include_directories(Maze3D PUBLIC "${REACT_PHYSICS_PATH}\\src\\")
 	   target_link_libraries(Maze3D "${REACT_PHYSICS_PATH}\\build\\lib\\Release\\reactphysics3d.lib")
 	   

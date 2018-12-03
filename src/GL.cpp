@@ -219,7 +219,7 @@ void init_Lumiere() {
 }
 
 
-int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Point2i finish) {
+int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Point2i finish) {
 
 	//	Scale to window size
 	GLint windowWidth, windowHeight;
@@ -249,7 +249,7 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 
 
 
-	while (!glfwWindowShouldClose(GL_window)) {
+	//while (!glfwWindowShouldClose(GL_window)) {
 
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -262,11 +262,12 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 		//glRotatef(-40.0f, 1.0f, 0.0f, 1.0f);
 		//def_axes();
 		//glPopMatrix();
-
-
 		glPushMatrix();
-		glRotatef(-20.0f, 1.0f, 0.0f, 0.0f);
+		glRotatef(180 / 3.14 * rvec_decomp.at<double>(0, 0), 1.0f, 0.0f, 0.0f);
+		glRotatef(180 / 3.14 * rvec_decomp.at<double>(1, 0), 0.0f, 1.0f, 0.0f);
+		glRotatef(180 / 3.14 * rvec_decomp.at<double>(2, 0), 0.0f, 0.0f, 1.0f);
 		glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
+		//glMultMatrixf(rotationMat);
 		def_walls(cloud);
 		//indication temporaire du départ et de l'arrivee
 		glBegin(GL_LINES);
@@ -292,11 +293,11 @@ int draw_GL(GLFWwindow *GL_window, Mat homography, Mat cloud, Point2i start, Poi
 		glfwPollEvents();
 
 
-	}
+	//}
 
 
-	glfwDestroyWindow(GL_window);
-	glfwTerminate();
+	//glfwDestroyWindow(GL_window);
+	//glfwTerminate();
 	return 0;
 }
 
