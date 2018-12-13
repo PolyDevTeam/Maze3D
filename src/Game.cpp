@@ -36,7 +36,7 @@ void Game::start(int argc, char **argv) {
 	}
 	else stop();
 	*/
-	//testBullet();
+	//testBullet2();
 	//test_REACT();
 	//while (true) {
 	//	cout << "fin test" << endl;
@@ -112,6 +112,10 @@ void Game::start(int argc, char **argv) {
 
 	bool initialisation = false;
 	bool quit = false;
+
+
+	btDiscreteDynamicsWorld* world;
+
 
 	/*
 	*	DEBUT INITIALISATION
@@ -296,6 +300,12 @@ void Game::start(int argc, char **argv) {
 			quit = true;
 	}
 
+	//	INIT PHYSIQUE
+	btVector3 ballOrigine(start.x - wallPoints.cols/2, -start.y + wallPoints.rows/2, 100);
+	float radius = 10;
+	btVector3 gravite(0, 0, -9.8);
+	btVector3 pillardDims(0.5, 0.5, 25);
+	world = initPhysics(gravite, wallPoints, radius, pillardDims, ballOrigine, 10);
 
 
     // Loop
@@ -406,13 +416,13 @@ void Game::start(int argc, char **argv) {
 
 		if (objCapture.size() == 4)
 		{
-			cout << "YES" << endl;
+			//cout << "YES" << endl;
 			h = findHomography(objCapture, objRef, RANSAC);
-			cout << h << endl << endl;
+			//cout << h << endl << endl;
 
 
 			solutions = decomposeHomographyMat(h, cameraMatrix, Rs_decomp, ts_decomp, normals_decomp);
-			cout << "Decompose homography matrix estimated by findHomography():" << endl << endl;
+			//cout << "Decompose homography matrix estimated by findHomography():" << endl << endl;
 			Mat rvec_decomp1;		
 			Mat rvec_decomp2;
 			Mat rvec_decomp;
@@ -421,7 +431,7 @@ void Game::start(int argc, char **argv) {
 			{
 				Rodrigues(Rs_decomp[i], rvec_decomp);
 				//cout << "Solution " << i << ":" << endl;
-				cout << "rvec from homography decomposition: " << rvec_decomp.t() << endl;
+				//cout << "rvec from homography decomposition: " << rvec_decomp.t() << endl;
 			}
 
 			Rodrigues(Rs_decomp[0], rvec_decomp1);
@@ -433,7 +443,7 @@ void Game::start(int argc, char **argv) {
 					rvec_decomp.at<double>(i, 0) = rvec_decomp2.at<double>(i, 0);
 				}
 			}
-			cout << rvec_decomp << endl;
+			//cout << rvec_decomp << endl;
 
 
 			try {
@@ -447,7 +457,7 @@ void Game::start(int argc, char **argv) {
 			cv::imshow("final", final);
 
 			
-			draw_GL(win, rvec_decomp, wallPoints, start, finish);
+			draw_GL(win, rvec_decomp, wallPoints, start, finish, world);
 		}
 
 		//v�rifie si l'utilisateur veut quitter

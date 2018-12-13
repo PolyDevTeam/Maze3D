@@ -1,4 +1,5 @@
 #include "GL.hpp"
+#include "Bullet3D.hpp"
 
 using namespace cv;
 using namespace std;
@@ -27,6 +28,52 @@ void resize_GL(GLFWwindow* window, int new_width, int new_height) {
 	glLoadIdentity();
 	gluLookAt(0.0, 0.0, 250.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 };
+
+void def_cube(void) {
+	glBegin(GL_POLYGON);
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(0.5, -0.5, 0.5);
+	glVertex3f(0.5, 0.5, 0.5);
+	glVertex3f(-0.5, 0.5, 0.5);
+	glVertex3f(-0.5, -0.5, 0.5);
+	glEnd();
+
+	// Purple side - RIGHT
+	glBegin(GL_POLYGON);
+	glColor3f(1.0, 0.0, 1.0);
+	glVertex3f(0.5, -0.5, -0.5);
+	glVertex3f(0.5, 0.5, -0.5);
+	glVertex3f(0.5, 0.5, 0.5);
+	glVertex3f(0.5, -0.5, 0.5);
+	glEnd();
+
+	// Green side - LEFT
+	glBegin(GL_POLYGON);
+	glColor3f(0.0, 1.0, 0.0);
+	glVertex3f(-0.5, -0.5, 0.5);
+	glVertex3f(-0.5, 0.5, 0.5);
+	glVertex3f(-0.5, 0.5, -0.5);
+	glVertex3f(-0.5, -0.5, -0.5);
+	glEnd();
+
+	// Blue side - TOP
+	glBegin(GL_POLYGON);
+	glColor3f(0.0, 0.0, 1.0);
+	glVertex3f(0.5, 0.5, 0.5);
+	glVertex3f(0.5, 0.5, -0.5);
+	glVertex3f(-0.5, 0.5, -0.5);
+	glVertex3f(-0.5, 0.5, 0.5);
+	glEnd();
+
+	// Red side - BOTTOM
+	glBegin(GL_POLYGON);
+	glColor3f(1.0, 0.0, 0.0);
+	glVertex3f(0.5, -0.5, -0.5);
+	glVertex3f(0.5, -0.5, 0.5);
+	glVertex3f(-0.5, -0.5, 0.5);
+	glVertex3f(-0.5, -0.5, -0.5);
+	glEnd();
+}
 
 void def_carre(void)
 {
@@ -219,7 +266,7 @@ void init_Lumiere() {
 }
 
 
-int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Point2i finish) {
+int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Point2i finish, btDiscreteDynamicsWorld* world) {
 
 	//	Scale to window size
 	GLint windowWidth, windowHeight;
@@ -258,28 +305,125 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 		*	DRAW STUFF
 		*/
 
+
+		world->stepSimulation(1.f / 60.f, 10);
+		//std::cout << world->getNumCollisionObjects() << std::endl;
+		for (int i = world->getNumCollisionObjects() - 1; i >= 0; i--)
+		{
+			btCollisionObject* obj = world->getCollisionObjectArray()[i];
+			btRigidBody* body = btRigidBody::upcast(obj);
+			btTransform trans;
+			//	Get Transformation
+			if (body && body->getMotionState())
+			{
+				body->getMotionState()->getWorldTransform(trans);
+			}
+			else
+			{
+				trans = obj->getWorldTransform();
+			}
+			
+			//	Matrice de transformation physique
+			btScalar mat[16];
+			trans.getOpenGLMatrix(mat);
+
+			btQuaternion rx(1, 0, 0, rvec_decomp.at<double>(0, 0));
+			btQuaternion ry(0, 1, 0, rvec_decomp.at<double>(1, 0));
+			btQuaternion rz(0, 0, 1, -rvec_decomp.at<double>(2, 0));
+
+			btQuaternion quad = rx * ry * rz;
+
+			trans.getOpenGLMatrix(mat);
+
+			//	BALLE
+			if (i == 0) {
+
+				glPushMatrix();
+				{
+					glMultMatrixf(mat);
+					//draw 3d
+					glColor3f(1.0, 1.0, 0);
+					GLUquadric* params = gluNewQuadric();
+					gluSphere(params, 10, 20, 20);
+				}
+				glPopMatrix();
+				printf("world pos object %d = %f,%f,%f\n", i, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+
+			}
+
+
+			//	SOL
+			else if (i == 1) {
+				
+
+				trans.setRotation(quad);
+				body->getMotionState()->setWorldTransform(trans);
+				trans.getOpenGLMatrix(mat);
+
+				glPushMatrix();
+				{
+					glMultMatrixf(mat);
+					glBegin(GL_QUADS);
+					{
+						glColor3f(0.23f, 0.12f, 0.09f);
+						glVertex3f(-cloud.cols/2, cloud.rows/2, 0);
+						glVertex3f(cloud.cols/2, cloud.rows/2, 0);
+						glVertex3f(cloud.cols/2, -cloud.rows/2, 0);
+						glVertex3f(-cloud.cols/2, -cloud.rows/2, 0);
+					}
+					glEnd();
+				}
+				glPopMatrix();
+			}
+
+			//	MUR
+			else if(i != 0 && i != 1) {
+
+				trans.setRotation(quad);
+				trans.getOpenGLMatrix(mat);
+
+				glPushMatrix();
+				{
+					glMultMatrixf(mat);
+					glBegin(GL_LINES);
+					{
+						glColor3f(0.0f, 0.7f, 0.0f);
+						//glVertex3f(-cloud.cols / 2, -cloud.rows / 2, 0);
+						//glVertex3f(-cloud.cols / 2, -cloud.rows / 2, 50);
+						glVertex3f(0, 0, 0);
+						glVertex3f(0, 0, 50);
+					}
+					glEnd();
+				}
+				glPopMatrix();
+
+			}
+
+		}
+
+
 		//glPushMatrix();
 		//glRotatef(-40.0f, 1.0f, 0.0f, 1.0f);
 		//def_axes();
 		//glPopMatrix();
-		glPushMatrix();
-		glRotatef(180 / 3.14 * rvec_decomp.at<double>(0, 0), 1.0f, 0.0f, 0.0f);
-		glRotatef(180 / 3.14 * rvec_decomp.at<double>(1, 0), 0.0f, 1.0f, 0.0f);
-		glRotatef(180 / 3.14 * rvec_decomp.at<double>(2, 0), 0.0f, 0.0f, 1.0f);
-		glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
-		//glMultMatrixf(rotationMat);
-		def_walls(cloud);
-		//indication temporaire du départ et de l'arrivee
-		glBegin(GL_LINES);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex3f(start.x / 1.0f, -start.y / 1.0f, 0);
-		glVertex3f(start.x / 1.0f, -start.y / 1.0f, 100);
+		//glPushMatrix();
+		//glRotatef(180 / 3.14 * rvec_decomp.at<double>(0, 0), 1.0f, 0.0f, 0.0f);
+		//glRotatef(180 / 3.14 * rvec_decomp.at<double>(1, 0), 0.0f, 1.0f, 0.0f);
+		//glRotatef(180 / 3.14 * rvec_decomp.at<double>(2, 0), 0.0f, 0.0f, 1.0f);
+		//glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
+		////glMultMatrixf(rotationMat);
+		//def_walls(cloud);
+		////indication temporaire du départ et de l'arrivee
+		//glBegin(GL_LINES);
+		//glColor3f(1.0f, 0.0f, 0.0f);
+		//glVertex3f(start.x / 1.0f, -start.y / 1.0f, 0);
+		//glVertex3f(start.x / 1.0f, -start.y / 1.0f, 100);
 
-		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 0);
-		glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 100);
-		glEnd();
-		glPopMatrix();
+		//glColor3f(0.0f, 0.0f, 1.0f);
+		//glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 0);
+		//glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 100);
+		//glEnd();
+		//glPopMatrix();
 
 		//glPushMatrix();
 		//glTranslatef(-0.5f, 0.5f, 0.0f);
