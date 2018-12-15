@@ -357,23 +357,6 @@ int testBullet2() {
 
 
 
-btDiscreteDynamicsWorld* initPhysics(btVector3 gravite, cv::Mat cloud, float radius, btVector3 pillardDims, btVector3 ballOrigine, btScalar ballMass) {
-
-	//	Creer un Monde physique
-	btDiscreteDynamicsWorld* world = createWorld(gravite);
-
-	//	Creer une Balle Physique
-	btRigidBody* ball = createBall(radius, ballOrigine, ballMass, world);
-
-	//	Creer un sol physique
-	btVector3 origineGround(0, 0, 0);
-	btRigidBody* ground = createGround(cloud, origineGround, world);
-
-	//	Creer les murs physique
-	std::vector<btRigidBody*> walls = createWalls(cloud, pillardDims,0 , world);
-
-	return world;
-}
 
 int clearPhysics(btDynamicsWorld* dynamicsWorld) {
 	///-----cleanup_start-----
@@ -414,8 +397,9 @@ btDiscreteDynamicsWorld* createWorld(btVector3 gravite) {
 
 
 
-std::vector<btRigidBody*> createWalls(cv::Mat cloud,btVector3 pillardDims, float z, btDiscreteDynamicsWorld* world) {
+btCompoundShape* createWalls(cv::Mat cloud,btVector3 pillardDims, float z, btDiscreteDynamicsWorld* world) {
 	
+	btCompoundShape* wallShape = new btCompoundShape();
 	std::vector<btRigidBody*> vect;
 
 	for (int row = 0; row < cloud.rows; row++) {
@@ -430,35 +414,47 @@ std::vector<btRigidBody*> createWalls(cv::Mat cloud,btVector3 pillardDims, float
 				btTransform myTransform;
 				myTransform.setIdentity();
 
-				// Position du sol
-				myTransform.setOrigin(btVector3(col - cloud.cols/2, row - cloud.rows/2, z));
+				// Position du pillier
+				myTransform.setOrigin(btVector3(col - cloud.cols/2, -row + cloud.rows/2, z));
 				btVector3 localInertiaPillard(0, 0, 0);
 
 				btDefaultMotionState *myMotionState;
 				myMotionState = new btDefaultMotionState(myTransform);
 
-				btRigidBody::btRigidBodyConstructionInfo infoPillard(0, myMotionState, pillardShape, localInertiaPillard);
 
-				btRigidBody* bodyPillard;
+				wallShape->addChildShape(myTransform, pillardShape);
 
-				//	Création du body 
-				bodyPillard = new btRigidBody(infoPillard);
 
-				//	Activation du mode KINEMATIC pour le body
-				bodyPillard->setCollisionFlags(bodyPillard->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-				bodyPillard->setActivationState(DISABLE_DEACTIVATION);
-
-				// On ajoute le sol dans le monde Bullet
-				world->addRigidBody(bodyPillard);
-				vect.push_back(bodyPillard);
 			}
 
 		}
 	}
 
+	btTransform wallTransform;
+	wallTransform.setIdentity();
+	wallTransform.setOrigin(btVector3(0, 0, 0));
+	btVector3 localInertia(0, 0, 0);
+
+	btDefaultMotionState *wallMotionState;
+	wallMotionState = new btDefaultMotionState(wallTransform);
 
 
-	return vect;
+	btRigidBody::btRigidBodyConstructionInfo infoWall(0, wallMotionState, wallShape, localInertia);
+	btRigidBody* bodyWall = new btRigidBody(infoWall);
+
+	//	Activation du mode KINEMATIC pour le body
+	bodyWall->setCollisionFlags(bodyWall->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+	bodyWall->setActivationState(DISABLE_DEACTIVATION);
+
+
+
+
+	// On ajoute le mur dans le monde Bullet
+	world->addRigidBody(bodyWall);
+
+
+
+	return wallShape;
 }
 
 btRigidBody* createBall(float radius, btVector3 origine, btScalar mass, btDiscreteDynamicsWorld* world) {
@@ -495,7 +491,7 @@ btRigidBody* createBall(float radius, btVector3 origine, btScalar mass, btDiscre
 
 btRigidBody* createGround(cv::Mat cloud, btVector3 origine, btDiscreteDynamicsWorld* world) {
 	//	Creation de la Forme
-	btVector3 dims(cloud.cols/2, cloud.rows/2, 0.5);
+	btVector3 dims(cloud.cols/2, cloud.rows/2, 5);
 	btCollisionShape* groundShape = new btBoxShape(dims);
 
 	btTransform myTransform;

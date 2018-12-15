@@ -303,9 +303,21 @@ void Game::start(int argc, char **argv) {
 	//	INIT PHYSIQUE
 	btVector3 ballOrigine(start.x - wallPoints.cols/2, -start.y + wallPoints.rows/2, 100);
 	float radius = 10;
-	btVector3 gravite(0, 0, -9.8);
+	btVector3 gravite(0, 0, -5000);
 	btVector3 pillardDims(0.5, 0.5, 25);
-	world = initPhysics(gravite, wallPoints, radius, pillardDims, ballOrigine, 10);
+	float ballMass = 1000000;
+	//	Creer un Monde physique
+	world = createWorld(gravite);
+
+	//	Creer une Balle Physique
+	btRigidBody* ball = createBall(radius, ballOrigine, ballMass, world);
+
+	//	Creer un sol physique
+	btVector3 origineGround(0, 0, 0);
+	btRigidBody* ground = createGround(wallPoints, origineGround, world);
+
+	//	Creer les murs physique
+	btCompoundShape* wall = createWalls(wallPoints, pillardDims, 0, world);
 
 
     // Loop
@@ -457,7 +469,7 @@ void Game::start(int argc, char **argv) {
 			cv::imshow("final", final);
 
 			
-			draw_GL(win, rvec_decomp, wallPoints, start, finish, world);
+			draw_GL(win, rvec_decomp, wallPoints, start, finish, world, wall);
 		}
 
 		//v�rifie si l'utilisateur veut quitter

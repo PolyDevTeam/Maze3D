@@ -266,7 +266,7 @@ void init_Lumiere() {
 }
 
 
-int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Point2i finish, btDiscreteDynamicsWorld* world) {
+int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Point2i finish, btDiscreteDynamicsWorld* world, btCompoundShape* walls) {
 
 	//	Scale to window size
 	GLint windowWidth, windowHeight;
@@ -305,6 +305,11 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 		*	DRAW STUFF
 		*/
 
+		btQuaternion rx(1, 0, 0, rvec_decomp.at<double>(0, 0)/2);
+		btQuaternion ry(0, 1, 0, rvec_decomp.at<double>(1, 0)/2);
+		btQuaternion rz(0, 0, 1, -rvec_decomp.at<double>(2, 0)/2);
+
+		btQuaternion quad = rx * ry * rz;
 
 		world->stepSimulation(1.f / 60.f, 10);
 		//std::cout << world->getNumCollisionObjects() << std::endl;
@@ -327,16 +332,16 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 			btScalar mat[16];
 			trans.getOpenGLMatrix(mat);
 
-			btQuaternion rx(1, 0, 0, rvec_decomp.at<double>(0, 0));
-			btQuaternion ry(0, 1, 0, rvec_decomp.at<double>(1, 0));
-			btQuaternion rz(0, 0, 1, -rvec_decomp.at<double>(2, 0));
-
-			btQuaternion quad = rx * ry * rz;
-
-			trans.getOpenGLMatrix(mat);
 
 			//	BALLE
 			if (i == 0) {
+				
+
+				trans.setRotation(quad);
+				body->getMotionState()->setWorldTransform(trans);
+				trans.getOpenGLMatrix(mat);
+
+
 
 				glPushMatrix();
 				{
@@ -377,9 +382,10 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 			}
 
 			//	MUR
-			else if(i != 0 && i != 1) {
+			else if(i == 2) {
 
 				trans.setRotation(quad);
+				body->getMotionState()->setWorldTransform(trans);
 				trans.getOpenGLMatrix(mat);
 
 				glPushMatrix();
@@ -388,10 +394,14 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 					glBegin(GL_LINES);
 					{
 						glColor3f(0.0f, 0.7f, 0.0f);
-						//glVertex3f(-cloud.cols / 2, -cloud.rows / 2, 0);
-						//glVertex3f(-cloud.cols / 2, -cloud.rows / 2, 50);
-						glVertex3f(0, 0, 0);
-						glVertex3f(0, 0, 50);
+
+						for (int i = 0; i < walls->getNumChildShapes(); i++) {
+								btVector3 ori = walls->getChildTransform(i).getOrigin();
+
+								glVertex3f(ori.getX(), ori.getY(), ori.getZ());
+								glVertex3f(ori.getX(), ori.getY(), ori.getZ()+50);
+						}
+
 					}
 					glEnd();
 				}
