@@ -378,6 +378,18 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 						glVertex3f(-cloud.cols/2 - offset, -cloud.rows/2 - offset, 0);
 					}
 					glEnd();
+					glPushMatrix();
+					glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
+					glBegin(GL_QUADS);
+					{
+						glColor3f(0.0f, 0.0f, 1.0f);
+						glVertex3f(finish.x, -finish.y, 0.1);
+						glVertex3f(finish.x, -finish.y - 20, 0.1);
+						glVertex3f(finish.x + 20, -finish.y - 20, 0.1);
+						glVertex3f(finish.x + 20, -finish.y, 0.1);
+					}
+					glEnd();
+					glPopMatrix();
 				}
 				glPopMatrix();
 			}
@@ -417,11 +429,11 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 		//glRotatef(-40.0f, 1.0f, 0.0f, 1.0f);
 		//def_axes();
 		//glPopMatrix();
-		//glPushMatrix();
-		//glRotatef(180 / 3.14 * rvec_decomp.at<double>(0, 0), 1.0f, 0.0f, 0.0f);
-		//glRotatef(180 / 3.14 * rvec_decomp.at<double>(1, 0), 0.0f, 1.0f, 0.0f);
-		//glRotatef(180 / 3.14 * rvec_decomp.at<double>(2, 0), 0.0f, 0.0f, 1.0f);
-		//glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
+		/*glPushMatrix();
+		glRotatef(180 / 3.14 * rvec_decomp.at<double>(0, 0)/2., 1.0f, 0.0f, 0.0f);
+		glRotatef(180 / 3.14 * rvec_decomp.at<double>(1, 0)/2., 0.0f, 1.0f, 0.0f);
+		glRotatef(180 / 3.14 * rvec_decomp.at<double>(2, 0)/2., 0.0f, 0.0f, 1.0f);
+		glTranslatef(-cloud.cols / 2, cloud.rows / 2, 0.0f);
 		////glMultMatrixf(rotationMat);
 		//def_walls(cloud);
 		////indication temporaire du départ et de l'arrivee
@@ -430,11 +442,14 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 		//glVertex3f(start.x / 1.0f, -start.y / 1.0f, 0);
 		//glVertex3f(start.x / 1.0f, -start.y / 1.0f, 100);
 
-		//glColor3f(0.0f, 0.0f, 1.0f);
-		//glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 0);
-		//glVertex3f(finish.x / 1.0f, -finish.y / 1.0f, 100);
-		//glEnd();
-		//glPopMatrix();
+		glBegin(GL_QUADS);
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glVertex3f(finish.x, -finish.y, 0.1);
+			glVertex3f(finish.x, -finish.y-20, 0.1);
+			glVertex3f(finish.x + 20, -finish.y - 20, 0.1);
+			glVertex3f(finish.x + 20, -finish.y, 0.1);
+		glEnd();
+		glPopMatrix();*/
 
 		//glPushMatrix();
 		//glTranslatef(-0.5f, 0.5f, 0.0f);
