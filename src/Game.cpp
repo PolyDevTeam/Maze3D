@@ -37,7 +37,7 @@ void Game::start(int argc, char **argv) {
 	else stop();
 	*/
 	//testBullet2();
-	//test_REACT();
+	////test_REACT();
 	//while (true) {
 	//	cout << "fin test" << endl;
 	//};
@@ -303,8 +303,8 @@ void Game::start(int argc, char **argv) {
 	//	INIT PHYSIQUE
 	btVector3 ballOrigine(start.x - wallPoints.cols/2, -start.y + wallPoints.rows/2, 100);
 	float radius = 10;
-	btVector3 gravite(0, 0, -5000);
-	btVector3 pillardDims(0.5, 0.5, 25);
+	btVector3 gravite(0, 0, -6000);
+	btVector3 pillardDims(0.5, 0.5, 100);
 	float ballMass = 1000000;
 	//	Creer un Monde physique
 	world = createWorld(gravite);
@@ -313,7 +313,7 @@ void Game::start(int argc, char **argv) {
 	btRigidBody* ball = createBall(radius, ballOrigine, ballMass, world);
 
 	//	Creer un sol physique
-	btVector3 origineGround(0, 0, 0);
+	btVector3 origineGround(0, 0, -50);
 	btRigidBody* ground = createGround(wallPoints, origineGround, world);
 
 	//	Creer les murs physique

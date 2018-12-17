@@ -193,9 +193,9 @@ int testBullet2() {
 	btRigidBody* ball = createBall(radius, origine, ballMass, world);
 
 	//	Creer un sol physique
-	//btVector3 groundDims(10, 1, 1);
+	btVector3 groundDims(500, 1, 300);
 	btVector3 origineGround(0, 0, 0);
-	btRigidBody* ground = createGround(chessBoard, origineGround, world);
+	btRigidBody* ground = createGround(groundDims, origineGround, world);
 
 	//	Creer les pillier physique
 	btVector3 pillardDims(0.1, 1, 0.1);
@@ -247,7 +247,9 @@ int testBullet2() {
 			btScalar mat[16];
 			
 			if (i == 1) {
-				body->getMotionState()->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 45)));
+				//btQuaternion quat(1, 0, 0, -0.79);
+				//trans.setRotation(quat);
+				//body->getMotionState()->setWorldTransform(trans);
 			}
 
 			trans.getOpenGLMatrix(mat);
@@ -271,6 +273,7 @@ int testBullet2() {
 				GLUquadric* params = gluNewQuadric();
 				gluSphere(params, radius, 20, 20);
 			}
+
 			//	GROUND
 			if (i == 1) {
 				glBegin(GL_POLYGON);
@@ -278,8 +281,8 @@ int testBullet2() {
 
 					glColor3f(1, 0, 0);
 
-					float dimx = chessBoard.cols;
-					float dimz = chessBoard.rows;
+					float dimx = groundDims[0];
+					float dimz = groundDims[2];
 
 					//glVertex3f(-dimx/2, 0.5, -dimz/2);
 					//glVertex3f(dimx/2, 0.5, -dimz/2);
@@ -296,28 +299,7 @@ int testBullet2() {
 
 				
 			}
-			//	PILLARDS
-			if (i != 0 && i != 1) {
-				glBegin(GL_POLYGON);
-				{
 
-					glColor3f(0, 0.5, 1);
-					float dimx = pillardDims[0];
-					float dimy = pillardDims[1];
-					float dimz = pillardDims[2];
-					
-
-					glVertex3f(-dimx / 2, dimy/2, dimz / 2);
-					glVertex3f(dimx / 2, dimy/2, dimz / 2);
-					glVertex3f(dimx / 2, -dimy/2, dimz / 2);
-					glVertex3f(-dimx / 2, -dimy/2, dimz / 2);
-
-
-				}
-				glEnd();
-
-
-			}
 		
 			glPopMatrix();
 		}
@@ -491,7 +473,7 @@ btRigidBody* createBall(float radius, btVector3 origine, btScalar mass, btDiscre
 
 btRigidBody* createGround(cv::Mat cloud, btVector3 origine, btDiscreteDynamicsWorld* world) {
 	//	Creation de la Forme
-	btVector3 dims(cloud.cols/2, cloud.rows/2, 5);
+	btVector3 dims(cloud.cols/2, cloud.rows/2, 50);
 	btCollisionShape* groundShape = new btBoxShape(dims);
 
 	btTransform myTransform;

@@ -370,11 +370,12 @@ int draw_GL(GLFWwindow *GL_window, Mat rvec_decomp, Mat cloud, Point2i start, Po
 					glMultMatrixf(mat);
 					glBegin(GL_QUADS);
 					{
+						float offset = 25;
 						glColor3f(0.23f, 0.12f, 0.09f);
-						glVertex3f(-cloud.cols/2, cloud.rows/2, 0);
-						glVertex3f(cloud.cols/2, cloud.rows/2, 0);
-						glVertex3f(cloud.cols/2, -cloud.rows/2, 0);
-						glVertex3f(-cloud.cols/2, -cloud.rows/2, 0);
+						glVertex3f(-cloud.cols/2 - offset, cloud.rows/2 + offset, 0);
+						glVertex3f(cloud.cols/2 + offset, cloud.rows/2 + offset, 0);
+						glVertex3f(cloud.cols/2 + offset, -cloud.rows/2 - offset, 0);
+						glVertex3f(-cloud.cols/2 - offset, -cloud.rows/2 - offset, 0);
 					}
 					glEnd();
 				}
