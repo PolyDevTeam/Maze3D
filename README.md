@@ -1,5 +1,6 @@
 # Maze3D
 
+![Build Status](https://api.travis-ci.org/PolyDevTeam/Maze3D.svg?branch=dev)
 
 ## Auteurs
 * Gabriel Villa - [gabrielvilla31](https://github.com/gabrielvilla31)

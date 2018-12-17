@@ -1,7 +1,14 @@
+.DS_Store
 .idea/
+.vs/
 CMakeFiles/
 cmake-build-debug/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
 Maze3D
+Maze3D.cbp
+*.exe
+*.pdb
+*.ilk
+CMakeSettings.json

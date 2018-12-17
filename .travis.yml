@@ -7,7 +7,7 @@ cache:
   - ${TRAVIS_BUILD_DIR}/deps/llvm/install
   - ${TRAVIS_BUILD_DIR}/deps/glfw3
   - ${TRAVIS_BUILD_DIR}/deps/opencv
-
+  - ${TRAVIS_BUILD_DIR}/deps/Bullet
 matrix:
   include:
   - env: CLANG_VERSION=3.8 BUILD_TYPE=Release
@@ -23,6 +23,7 @@ matrix:
         - libxi-dev
         - libglew-dev
         - libglm-dev
+        - premake
         sources: &sources
         - ubuntu-toolchain-r-test
         - llvm-toolchain-precise-3.8
@@ -32,9 +33,9 @@ matrix:
       apt:
         packages: *packages
         sources: *sources
-  - os: osx
-    osx_image: xcode9
-    compiler: clang
+#  - os: osx
+#    osx_image: xcode9
+#    compiler: clang
 
 
 install:
@@ -94,11 +95,11 @@ install:
   cmake -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
   make
   sudo make install
-- |
-  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-    brew install glew
-    brew install assimp
-  fi
+#- |
+#  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+#    brew install glew
+#    brew install assimp
+#  fi
 ############################################################################
 # Install opencv
 ############################################################################
@@ -117,11 +118,27 @@ install:
   sudo make install
   sudo sed -i -e "s/-lAccelerate/ /" /usr/local/lib/pkgconfig/opencv.pc
 
+############################################################################
+# Install bullet
+############################################################################
+-  |
+  if [[ -z "$(ls -A ${DEPS_DIR}/bullet3/bullet3-master)" ]]; then
+    mkdir -p ${DEPS_DIR}/bullet
+    travis_retry wget https://github.com/bulletphysics/bullet3/archive/master.zip -P ${DEPS_DIR}/bullet3
+    cd ${DEPS_DIR}/bullet3
+    unzip -q ${DEPS_DIR}/bullet3/master.zip
+  fi
+  cd ${DEPS_DIR}/bullet3/bullet3-master
+  ./build_cmake_pybullet_double.sh
+  cd build_cmake
+  make -j$JOBS
+  sudo make install
+
 before_script:
 - cd "${TRAVIS_BUILD_DIR}"
 
 script:
 - cmake -DENABLE_TESTS=ON .
 - cmake --build . -- -j$JOBS
-- cd tests
-- ctest
+#- cd tests
+#- ctest
