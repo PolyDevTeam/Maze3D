@@ -9,20 +9,24 @@ project(Maze3D)
 if(BUILD_GAME)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
-    set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++11 -opencv")
+    set(CMAKE_CXX_FLAGS "-Wall -pedantic -std=c++11 -opencv -lBulletCollision -lBulletDynamics -lLinearMath")
 
     set(SOURCE_FILES
             src/main.cpp
-			src/GL.cpp
-			src/Box2D.cpp
-			src/Bullet3D.cpp
-            src/Pos.cpp
-            src/Ball.cpp
-            src/Map.cpp
-            src/Wall.cpp
             src/Game.cpp
+            src/CameraCalibration.cpp
+            src/GL.cpp
             src/Image.cpp
-			src/CameraCalibration.cpp)
+            src/Util.cpp
+            src/Wall.cpp
+            src/World.cpp
+            src/Ball.cpp
+            src/Ground.cpp
+#			src/Box2D.cpp
+#			src/Bullet3D.cpp
+#            src/Pos.cpp
+#            src/Map.cpp
+			)
 
     add_executable(Maze3D ${SOURCE_FILES})
 
@@ -67,17 +71,13 @@ if(BUILD_GAME)
     if(NOT WIN32)
         find_package(OpenCV REQUIRED)
         target_link_libraries(Maze3D PUBLIC ${OpenCV_LIBS})
-        #setupLib(Maze3D ${PKG_CONFIG_FOUND} OpenCV opencv ${OpenCV_LIBS} ${OpenCV_INCLUDE_DIRS} _STATIC)
         #setupLib(Maze3D ${PKG_CONFIG_FOUND} OPENCV opencv ${DEPS_PATH}/opencv/lib/opencv.a ${DEPS_PATH}/opencv/include _STATIC)
-        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
-        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/glfw/lib/libglfw3.a ${DEPS_PATH}/glfw/include _STATIC)
+        #setupLib(Maze3D ${PKG_CONFIG_FOUND} GLEW glew ${DEPS_PATH}/glew/lib/libGLEW.a ${DEPS_PATH}/glew/include _STATIC)
+        setupLib(Maze3D ${PKG_CONFIG_FOUND} GLFW glfw3 ${DEPS_PATH}/lib/libglfw3.a ${DEPS_PATH}/GLFW/include _STATIC)
 
         find_package(Bullet)
-		include_directories($(BULLET_INCLUDE_DIRS))
-
         if(Bullet_FOUND)
             setupLib(Maze3D ${PKG_CONFIG_FOUND} BULLET bullet ${BULLET_LIBRARIES} ${Bullet_INCLUDE_DIRS} _STATIC)
-#            target_link_libraries(Maze3D ${BULLET_LIBRARIES})
         else()
             message("BULLET NOT FOUND")
         endif()
@@ -96,7 +96,6 @@ if(BUILD_GAME)
             target_link_libraries(Maze3D PUBLIC "-framework QTKit" "-framework QuartzCore" "-framework AppKit" "-framework IOKit")
             target_link_libraries(Maze3D PUBLIC ${OSX_LIBS})
         endif()
-
     else()
        set(OpenCV_DIR "C:\\opencv\\build")
 
@@ -118,7 +117,6 @@ if(BUILD_GAME)
 	   target_include_directories(Maze3D PUBLIC ${OPENGL_INCLUDE_DIRS})
 	   target_link_libraries(Maze3D ${OPENGL_LIBRARIES})
 
-
 	   #GLFW
 	   SET(GLFW_PATH "C:\\glfw")
 	   target_include_directories(Maze3D PUBLIC "${GLFW_PATH}\\include")
@@ -130,13 +128,5 @@ if(BUILD_GAME)
 	   target_link_libraries(Maze3D "${BULLET_PATH}\\lib\\Release\\BulletCollision.lib")
 	   target_link_libraries(Maze3D "${BULLET_PATH}\\lib\\Release\\BulletDynamics.lib")
 	   target_link_libraries(Maze3D "${BULLET_PATH}\\lib\\Release\\LinearMath.lib")
-
-
-
-
     endif()
 endif()
-
-#if(ENABLE_TESTS)
-#    add_subdirectory(tests)
-#endif()

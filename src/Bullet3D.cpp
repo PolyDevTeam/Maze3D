@@ -1,4 +1,4 @@
-#include "bullet3D.hpp"
+//#include "bullet3D.hpp"
 #include "GL.hpp"
 
 int testBullet() {
@@ -245,7 +245,7 @@ int testBullet2() {
 			}
 			//printf("world pos object %d = %f,%f,%f\n", i, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
 			btScalar mat[16];
-			
+
 			if (i == 1) {
 				//btQuaternion quat(1, 0, 0, -0.79);
 				//trans.setRotation(quat);
@@ -296,11 +296,8 @@ int testBullet2() {
 
 				}
 				glEnd();
-
-				
 			}
 
-		
 			glPopMatrix();
 		}
 
@@ -310,35 +307,15 @@ int testBullet2() {
 		//glVertex3f(0.0f, 0.0f, 1.0f);
 		//glEnd();
 
-
-
 		// Update Screen
 		glfwSwapBuffers(win);
 
 		// Check for any input, or window movement
 		glfwPollEvents();
-
-
 	}
-
 
 	return 1;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int clearPhysics(btDynamicsWorld* dynamicsWorld) {
 	///-----cleanup_start-----
@@ -376,8 +353,6 @@ btDiscreteDynamicsWorld* createWorld(btVector3 gravite) {
 	world->setGravity(gravite);
 	return world;
 }
-
-
 
 btCompoundShape* createWalls(cv::Mat cloud,btVector3 pillardDims, float z, btDiscreteDynamicsWorld* world) {
 	
@@ -490,7 +465,7 @@ btRigidBody* createGround(cv::Mat cloud, btVector3 origine, btDiscreteDynamicsWo
 	//infoGround.m_restitution = 0.0f;
 	btRigidBody* bodyGround;
 
-	//	Création du body 
+	//	Crï¿½ation du body 
 	bodyGround = new btRigidBody(infoGround);
 
 	//	Activation du mode KINEMATIC pour le body
@@ -521,7 +496,7 @@ btRigidBody* createGround(btVector3 groundDims, btVector3 origine, btDiscreteDyn
 
 	btRigidBody* bodyGround;
 
-	//	Création du body 
+	//	Crï¿½ation du body 
 	bodyGround = new btRigidBody(infoGround);
 
 	//	Activation du mode KINEMATIC pour le body
