@@ -33,3 +33,17 @@ void Ball::createPhysics(btVector3 origin, float mass, World *world) {
 
     world->getInstance()->addRigidBody(body);
 }
+
+void Ball::draw(btScalar mat[]) {
+    glPushMatrix();
+    {
+        glMultMatrixf(mat);
+        //draw 3d
+        glColor3f(1.0, 1.0, 0);
+        GLUquadric* params = gluNewQuadric();
+        gluSphere(params, 10, 20, 20);
+    }
+
+    glPopMatrix();
+    // printf("world pos object %d = %f,%f,%f\n", i, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+}

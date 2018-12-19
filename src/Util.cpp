@@ -37,3 +37,48 @@ Point2i Util::nearest(vector<Point2i> vecRect, Point2i target) {
 
     return ref;
 }
+
+int Util::highestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+    int higher = p11.y;
+
+    if (p12.y < higher) higher = p12.y;
+    if (p13.y < higher) higher = p13.y;
+    if (p14.y < higher) higher = p14.y;
+    return higher;
+}
+
+int Util::lowestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+    int low = p11.y;
+
+    if (p12.y > low) low = p12.y;
+    if (p13.y > low) low = p13.y;
+    if (p14.y > low) low = p14.y;
+    return low;
+}
+
+int Util::rightestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+    int right = p11.x;
+
+    if (p12.x > right) right = p12.x;
+    if (p13.x > right) right = p13.x;
+    if (p14.x > right) right = p14.x;
+    return right;
+}
+
+int Util::leftestPoint(Point2i p11, Point2i p12, Point2i p13, Point2i p14) {
+    int left = p11.y;
+
+    if (p12.x < left) left = p12.x;
+    if (p13.x < left) left = p13.x;
+    if (p14.x < left) left = p14.x;
+    return left;
+}
+
+Mat Util::applyMask(Mat canny, int high, int low, int right, int left, int eps) {
+    Mat dest;
+    Mat mask = Mat::zeros(canny.rows, canny.cols, canny.type());
+    rectangle(mask, Rect(left - eps, high - eps, right - left + 2 * eps, low - high + 2 * eps), Scalar(255, 255, 255),
+              FILLED);
+    bitwise_and(canny, mask, dest);
+    return dest;
+}

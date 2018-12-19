@@ -67,3 +67,28 @@ void Wall::createPhysics(btVector3 pillardDims, float z, World *world) {
 cv::Mat Wall::getPoints() const {
     return this->points;
 }
+
+btCompoundShape *Wall::getPhysics() const {
+    return this->physics;
+}
+
+void Wall::draw(btScalar mat[]) {
+    glPushMatrix();
+    {
+        glMultMatrixf(mat);
+        glBegin(GL_LINES);
+        {
+            glColor3f(0.0f, 0.7f, 0.0f);
+
+            for (int i = 0; i < getPhysics()->getNumChildShapes(); i++) {
+                btVector3 ori = getPhysics()->getChildTransform(i).getOrigin();
+
+                glVertex3f(ori.getX(), ori.getY(), ori.getZ());
+                glVertex3f(ori.getX(), ori.getY(), ori.getZ() + 50);
+            }
+        }
+        glEnd();
+    }
+
+    glPopMatrix();
+}
