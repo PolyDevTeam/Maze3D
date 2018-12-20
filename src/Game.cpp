@@ -381,11 +381,12 @@ void Game::run() {
 void Game::start(int argc, char **argv) {
     getCalibration();
 
+    glWindows = new GL();
     glWindows->init();
 
-//    initialise();
-//
-//    run();
+    initialise();
+
+    run();
 }
 
 void Game::resetDetection(VideoCapture capture) {

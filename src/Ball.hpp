@@ -12,7 +12,7 @@ public:
     Ball(float radius);
     ~Ball();
     void createPhysics(btVector3 origin, float mass, World* world);
-    void draw(btScalar mat[]);
+    void draw(const btScalar mat[]);
 private:
     btCollisionShape* physics;
     float radius;

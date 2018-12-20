@@ -72,7 +72,7 @@ btCompoundShape *Wall::getPhysics() const {
     return this->physics;
 }
 
-void Wall::draw(btScalar mat[]) {
+void Wall::draw(const btScalar mat[]) {
     glPushMatrix();
     {
         glMultMatrixf(mat);

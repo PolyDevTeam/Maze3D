@@ -34,7 +34,7 @@ void Ball::createPhysics(btVector3 origin, float mass, World *world) {
     world->getInstance()->addRigidBody(body);
 }
 
-void Ball::draw(btScalar mat[]) {
+void Ball::draw(const btScalar mat[]) {
     glPushMatrix();
     {
         glMultMatrixf(mat);

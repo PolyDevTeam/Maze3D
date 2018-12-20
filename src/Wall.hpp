@@ -18,7 +18,7 @@ public:
     void createPhysics(btVector3 pillardDims, float z, World* world);
     cv::Mat getPoints() const;
     btCompoundShape* getPhysics() const;
-    void draw(btScalar mat[]);
+    void draw(const btScalar mat[]);
 private:
     cv::Mat points;
     btCompoundShape* physics;
