@@ -182,12 +182,15 @@ void Game::initialise() {
                 objRef.push_back(pBottomRight);
 
                 // sauvegarde du point de depart et d'arrivee
-                map->start(boundingCircle.tl());
+                /*map->start(boundingCircle.tl());
                 map->finish(boundingTriangle.tl());
                 map->start().x -= pTopLeft.x;
                 map->start().y -= pTopLeft.y;
                 map->finish().x -= pTopLeft.x;
-                map->finish().y -= pTopLeft.y;
+                map->finish().y -= pTopLeft.y;*/
+
+				map->setStart(boundingCircle.tl().x - pTopLeft.x, boundingCircle.tl().y - pTopLeft.y);
+				map->setFinish(boundingTriangle.tl().x - pTopLeft.x, boundingTriangle.tl().y - pTopLeft.y);
 
                 if (zone_jeu.width != 0) {
                     map->wall()->update(canny, zone_jeu, boundingTriangle, boundingCircle);

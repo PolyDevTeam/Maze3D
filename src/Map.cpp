@@ -4,12 +4,22 @@ using namespace cv;
 
 Map::Map() = default;
 
+void Map::setStart(int x, int y) {
+	this->m_startPointx = x;
+	this->m_startPointy = y;
+}
+
 void Map::start(const cv::Point2i &start) {
     this->m_startPoint = start;
 }
 
 cv::Point2i &Map::start() {
     return this->m_startPoint;
+}
+
+void Map::setFinish(int x, int y) {
+	this->m_finishPointx = x;
+	this->m_finishPointy = y;
 }
 
 cv::Point2i &Map::finish() {
@@ -31,8 +41,8 @@ void Map::createPhysics() {
     m_world->create(gravity);
 
     // Creer une Balle Physique
-    btVector3 ballOrigin(m_startPoint.x - m_wall->getPoints().cols / 2.0f,
-                         -m_startPoint.y + m_wall->getPoints().rows / 2.0f,
+    btVector3 ballOrigin(m_startPointx - m_wall->getPoints().cols / 2.0f,
+                         -m_startPointy + m_wall->getPoints().rows / 2.0f,
                          100);
 
     m_ball = new Ball(BALL_RADIUS);
@@ -108,7 +118,7 @@ void Map::draw(GL *glWindow, Mat rvec_decomp) {
                 m_ball->draw(mat);
                 break;
             case 1:
-                m_ground->draw(mat, m_wall->getPoints(), m_finishPoint);
+                m_ground->draw(mat, m_wall->getPoints(), cv::Point2i(this->m_finishPointx, this->m_finishPointy));
                 break;
             case 2:
                 m_wall->draw(mat);
