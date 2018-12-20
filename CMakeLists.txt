@@ -22,7 +22,8 @@ if(BUILD_GAME)
             src/World.cpp
             src/Ball.cpp
             src/Ground.cpp
-            src/Map.cpp)
+            src/Map.cpp
+            src/Settings.cpp)
 
     add_executable(Maze3D ${SOURCE_FILES})
 

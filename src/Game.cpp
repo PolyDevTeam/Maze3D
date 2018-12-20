@@ -383,9 +383,9 @@ void Game::start(int argc, char **argv) {
 
     glWindows->init();
 
-    initialise();
-
-    run();
+//    initialise();
+//
+//    run();
 }
 
 void Game::resetDetection(VideoCapture capture) {
