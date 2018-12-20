@@ -31,7 +31,7 @@ void Ground::createPhysics(cv::Mat walls, btVector3 origin, World* world) {
 void Ground::draw(btScalar mat[], cv::Mat wall, cv::Point2i finishPoint) {
     glPushMatrix();
     {
-        glMultMatrixf(const float*) mat);
+        glMultMatrixf((const float*) mat);
         glBegin(GL_QUADS);
         {
             float offset = 25;
