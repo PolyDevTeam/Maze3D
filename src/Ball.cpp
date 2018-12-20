@@ -37,7 +37,7 @@ void Ball::createPhysics(btVector3 origin, float mass, World *world) {
 void Ball::draw(const btScalar mat[]) {
     glPushMatrix();
     {
-        glMultMatrixf(mat);
+        glMultMatrixf((const float*) mat);
         //draw 3d
         glColor3f(1.0, 1.0, 0);
         GLUquadric* params = gluNewQuadric();

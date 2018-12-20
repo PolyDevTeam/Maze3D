@@ -75,7 +75,7 @@ btCompoundShape *Wall::getPhysics() const {
 void Wall::draw(const btScalar mat[]) {
     glPushMatrix();
     {
-        glMultMatrixf(mat);
+        glMultMatrixf((const float*) mat);
         glBegin(GL_LINES);
         {
             glColor3f(0.0f, 0.7f, 0.0f);
