@@ -124,3 +124,19 @@ void Map::draw(GL *glWindow, Mat rvec_decomp) {
     // Check for any input, or window movement
     glfwPollEvents();
 }
+
+void Map::setStartX(const int point) {
+    this->m_startPoint.x = point;
+}
+
+void Map::setStartY(const int point) {
+    this->m_startPoint.y = point;
+}
+
+void Map::setFinishX(const int point) {
+    this->m_finishPoint.x = point;
+}
+
+void Map::setFInishY(const int point) {
+    this->m_finishPoint.y = point;
+}

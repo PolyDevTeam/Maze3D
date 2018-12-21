@@ -12,6 +12,10 @@ public:
     Map();
     cv::Point2i& start();
     void start(const cv::Point2i& start);
+    void setStartX(const int point);
+    void setStartY(const int point);
+    void setFinishX(const int point);
+    void setFInishY(const int point);
     cv::Point2i& finish();
     void finish(const cv::Point2i& finish);
     void createPhysics();

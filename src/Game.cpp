@@ -184,10 +184,16 @@ void Game::initialise() {
                 // sauvegarde du point de depart et d'arrivee
                 map->start(boundingCircle.tl());
                 map->finish(boundingTriangle.tl());
-                map->start().x -= pTopLeft.x;
-                map->start().y -= pTopLeft.y;
-                map->finish().x -= pTopLeft.x;
-                map->finish().y -= pTopLeft.y;
+
+                map->setStartX(map->start().x - pTopLeft.x);
+                map->setStartY(map->start().y - pTopLeft.y);
+                map->setFinishX(map->finish().x - pTopLeft.x);
+                map->setFInishY(map->finish().y - pTopLeft.y);
+
+//                map->start().x -= pTopLeft.x;
+//                map->start().y -= pTopLeft.y;
+//                map->finish().x -= pTopLeft.x;
+//                map->finish().y -= pTopLeft.y;
 
                 if (zone_jeu.width != 0) {
                     map->wall()->update(canny, zone_jeu, boundingTriangle, boundingCircle);
@@ -379,14 +385,15 @@ void Game::run() {
 }
 
 void Game::start(int argc, char **argv) {
-    getCalibration();
-
-    glWindows = new GL();
-    glWindows->init();
-
-    initialise();
-
-    run();
+    map->start().x -= pTopLeft.x;
+//    getCalibration();
+//
+//    glWindows = new GL();
+//    glWindows->init();
+//
+//    initialise();
+//
+//    run();
 }
 
 void Game::resetDetection(VideoCapture capture) {
