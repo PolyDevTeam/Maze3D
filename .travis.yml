@@ -24,11 +24,13 @@ matrix:
             - libglew-dev
             - libglm-dev
             - premake
+            - python-pip
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
 
 install:
+  - sudo pip install numpy scipy
   - if [[ -n "$CLANG_VERSION" ]]; then export CXX=clang++-$CLANG_VERSION CC=clang-$CLANG_VERSION; fi
   - if [[ -n "$GCC_VERSION" ]]; then export CXX=g++-$GCC_VERSION CC=gcc-$GCC_VERSION; fi
   - JOBS=2
@@ -85,11 +87,7 @@ install:
     cmake -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
     make
     sudo make install
-  #- |
-  #  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-  #    brew install glew
-  #    brew install assimp
-  #  fi
+
   ############################################################################
   # Install opencv
   ############################################################################
