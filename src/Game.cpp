@@ -255,7 +255,7 @@ void Game::run() {
         int right = Util::rightestPoint(pTopRight, pTopLeft, pBottomLeft, pBottomRight);
         int left = Util::leftestPoint(pTopRight, pTopLeft, pBottomLeft, pBottomRight);
 
-        int eps2 = static_cast<int>((int) 0.20 * Util::dist(pTopRight, pTopLeft));
+        int eps2 = static_cast<int>(0.20 * Util::dist(pTopRight, pTopLeft));
         Util::applyMask(canny, high, low, right, left, eps2).copyTo(canny);
 
         // Display canny image
