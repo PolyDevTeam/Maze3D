@@ -1,5 +1,5 @@
 # Maze3D
-<> (![Build Status](https://api.travis-ci.org/PolyDevTeam/Maze3D.svg?branch=master))
+![Build Status](https://api.travis-ci.org/PolyDevTeam/Maze3D.svg?branch=master)
 ## Auteurs
 * Gabriel Villa - [gabrielvilla31](https://github.com/gabrielvilla31)
 * Valentin Poize - [ValentinPoize](https://github.com/ValentinPoize)
