@@ -14,7 +14,7 @@ matrix:
       os: linux
       addons:
         apt:
-          packages: &packages
+          packages:
             - clang-3.8
             - g++-5
             - libxrandr-dev
@@ -24,13 +24,9 @@ matrix:
             - libglew-dev
             - libglm-dev
             - premake
-          sources: &sources
+          sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
-#  - os: osx
-#    osx_image: xcode9
-#    compiler: clang
-
 
 install:
   - if [[ -n "$CLANG_VERSION" ]]; then export CXX=clang++-$CLANG_VERSION CC=clang-$CLANG_VERSION; fi
@@ -111,6 +107,7 @@ install:
     make -j$JOBS
     sudo make install
     sudo sed -i -e "s/-lAccelerate/ /" /usr/local/lib/pkgconfig/opencv.pc
+
   ############################################################################
   # Install bullet
   ############################################################################
@@ -126,11 +123,12 @@ install:
     cd build_cmake
     make -j$JOBS
     sudo make install
+
 before_script:
   - cd "${TRAVIS_BUILD_DIR}"
 
 script:
-  - cmake -DENABLE_TESTS=ON .
-  - cmake --build . -- -j$JOBS
+  - cmake .
+  - make
 #- cd tests
 #- ctest
