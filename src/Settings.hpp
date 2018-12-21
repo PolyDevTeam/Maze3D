@@ -47,6 +47,7 @@ public:
     float getAspectRatio() const;
 
     void read(const cv::FileNode &node);
+
 private:
     void interprate();
 

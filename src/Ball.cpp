@@ -4,7 +4,9 @@ Ball::Ball(float radius) : radius(radius) {
 
 }
 
-Ball::~Ball() = default;
+Ball::~Ball() {
+    delete physics;
+}
 
 void Ball::createPhysics(btVector3 origin, float mass, World *world) {
     //	Creation de la Forme

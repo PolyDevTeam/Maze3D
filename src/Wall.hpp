@@ -13,15 +13,22 @@
 class Wall {
 public:
     Wall();
+
     ~Wall();
+
     void update(Image src, cv::Rect zone, cv::Rect boundingTriangle, cv::Rect boundingCircle);
-    void createPhysics(btVector3 pillardDims, float z, World* world);
+
+    void createPhysics(btVector3 pillardDims, float z, World *world);
+
     cv::Mat getPoints() const;
-    btCompoundShape* getPhysics() const;
+
+    btCompoundShape *getPhysics() const;
+
     void draw(const btScalar mat[]);
+
 private:
     cv::Mat points;
-    btCompoundShape* physics;
+    btCompoundShape *physics;
 };
 
 #endif /* __WALL_HPP__ */

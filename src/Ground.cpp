@@ -1,6 +1,14 @@
 #include "Ground.hpp"
 
-void Ground::createPhysics(cv::Mat walls, btVector3 origin, World* world) {
+Ground::Ground() {
+
+}
+
+Ground::~Ground() {
+    delete physics;
+}
+
+void Ground::createPhysics(cv::Mat walls, btVector3 origin, World *world) {
     //	Creation de la Forme
     btVector3 dims(walls.cols / 2.0f, walls.rows / 2.0f, 50);
     btCollisionShape *groundShape = new btBoxShape(dims);
@@ -31,15 +39,15 @@ void Ground::createPhysics(cv::Mat walls, btVector3 origin, World* world) {
 void Ground::draw(btScalar mat[], cv::Mat wall, cv::Point2i finishPoint) {
     glPushMatrix();
     {
-        glMultMatrixf((const float*) mat);
+        glMultMatrixf((const float *) mat);
         glBegin(GL_QUADS);
         {
             float offset = 25;
             glColor3f(0.23f, 0.12f, 0.09f);
-            glVertex3f(-wall.cols/2.0f - offset, wall.rows/2.0f + offset, 0);
-            glVertex3f(wall.cols/2.0f + offset, wall.rows/2.0f + offset, 0);
-            glVertex3f(wall.cols/2.0f + offset, -wall.rows/2.0f - offset, 0);
-            glVertex3f(-wall.cols/2.0f - offset, -wall.rows/2.0f - offset, 0);
+            glVertex3f(-wall.cols / 2.0f - offset, wall.rows / 2.0f + offset, 0);
+            glVertex3f(wall.cols / 2.0f + offset, wall.rows / 2.0f + offset, 0);
+            glVertex3f(wall.cols / 2.0f + offset, -wall.rows / 2.0f - offset, 0);
+            glVertex3f(-wall.cols / 2.0f - offset, -wall.rows / 2.0f - offset, 0);
         }
         glEnd();
         glPushMatrix();

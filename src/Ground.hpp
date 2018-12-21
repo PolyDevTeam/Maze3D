@@ -7,10 +7,16 @@
 
 class Ground {
 public:
-    void createPhysics(cv::Mat walls, btVector3 origin, World* world);
+    Ground();
+
+    ~Ground();
+
+    void createPhysics(cv::Mat walls, btVector3 origin, World *world);
+
     void draw(btScalar mat[], cv::Mat wall, cv::Point2i finishPoint);
+
 private:
-    btRigidBody* physics;
+    btRigidBody *physics;
 };
 
 #endif /* __GROUND_HPP__ */

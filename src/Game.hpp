@@ -6,7 +6,12 @@
 
 class Game {
 public:
+    Game();
+
+    ~Game();
+
     void start(int argc, char **argv);
+
 private:
     void getCalibration() const;
 
@@ -19,7 +24,7 @@ private:
     GL *glWindows;
     std::vector<cv::Point2i> objRef;
 
-    Map* map;
+    Map *map;
 
     cv::Point2i pTopRight;
     cv::Point2i pTopLeft;

@@ -5,10 +5,16 @@
 
 class World {
 public:
+    World();
+
+    ~World();
+
     void create(btVector3 gravity);
-    btDiscreteDynamicsWorld* getInstance() const;
+
+    btDiscreteDynamicsWorld *getInstance() const;
+
 private:
-    btDiscreteDynamicsWorld* instance;
+    btDiscreteDynamicsWorld *instance;
 };
 
 #endif /* __WORLD_HPP__ */

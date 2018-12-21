@@ -20,8 +20,8 @@ static void help() {
             "how to edit it.  It may be any OpenCV supported file format XML/YAML." << endl;
 }
 
-static void read(const FileNode& node, Settings& x, const Settings& default_value = Settings()) {
-    if(node.empty())
+static void read(const FileNode &node, Settings &x, const Settings &default_value = Settings()) {
+    if (node.empty())
         x = default_value;
     else
         x.read(node);

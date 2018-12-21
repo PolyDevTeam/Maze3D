@@ -10,11 +10,15 @@
 class Ball {
 public:
     Ball(float radius);
+
     ~Ball();
-    void createPhysics(btVector3 origin, float mass, World* world);
+
+    void createPhysics(btVector3 origin, float mass, World *world);
+
     void draw(const btScalar mat[]);
+
 private:
-    btCollisionShape* physics;
+    btCollisionShape *physics;
     float radius;
 };
 

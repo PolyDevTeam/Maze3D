@@ -12,6 +12,16 @@ typedef std::vector<std::vector<cv::Point>> Contours;
 
 cv::Mat cameraMatrix;
 
+Game::Game() {
+    map = new Map;
+    glWindows = new GL();
+}
+
+Game::~Game() {
+    delete map;
+    delete glWindows;
+}
+
 void Game::getCalibration() const {
     FileStorage fs("out_camera_data.xml", FileStorage::READ);
 
@@ -43,7 +53,6 @@ void Game::initialise() {
     // Get WebCam
     // 480 x 640
     VideoCapture capture(0);
-
     bool initialisation = false;
     quit = false;
 
@@ -149,8 +158,7 @@ void Game::initialise() {
                     } else if (vtc == 6) {
                         Image::setLabel(dst, "HEXA", contour);
                     }
-                }
-                else {
+                } else {
                     // Detect and label circles
                     double area = cv::contourArea(contour);
                     cv::Rect r = cv::boundingRect(contour);
@@ -260,7 +268,7 @@ void Game::run() {
         Image dst;
         cam.copyTo(dst);
 
-	    vector<Point2i> vectRect;
+        vector<Point2i> vectRect;
 
         for (auto &contour : contours) {
             // Approximate contour with accuracy proportional
@@ -318,9 +326,9 @@ void Game::run() {
             objCapture.clear();
 
             if (Util::dist(top_right, pTopRight) < eps3
-            && Util::dist(top_left, pTopLeft) < eps3
-            && Util::dist(bottom_left, pBottomLeft) < eps3
-            && Util::dist(bottom_right, pBottomRight) < eps3) {
+                && Util::dist(top_left, pTopLeft) < eps3
+                && Util::dist(bottom_left, pBottomLeft) < eps3
+                && Util::dist(bottom_right, pBottomRight) < eps3) {
                 objCapture.push_back(top_right);
                 objCapture.push_back(top_left);
                 objCapture.push_back(bottom_left);
@@ -358,7 +366,7 @@ void Game::run() {
             Rodrigues(Rs_decomp[2], rvec_decomp2);
             rvec_decomp = rvec_decomp1;
 
-            for (int i = 0;i < 3;i++) {
+            for (int i = 0; i < 3; i++) {
                 if (abs(rvec_decomp2.at<double>(i, 0)) > abs(rvec_decomp1.at<double>(i, 0))) {
                     rvec_decomp.at<double>(i, 0) = rvec_decomp2.at<double>(i, 0);
                 }
@@ -368,7 +376,7 @@ void Game::run() {
             try {
                 warpPerspective(map->wall()->getPoints(), final, homographyMat, final.size());
             }
-            catch (std::exception const& e) {
+            catch (std::exception const &e) {
                 cerr << "ERREUR : " << e.what() << endl;
             }
 
@@ -387,7 +395,6 @@ void Game::run() {
 void Game::start(int argc, char **argv) {
     getCalibration();
 
-    glWindows = new GL();
     glWindows->init();
 
     initialise();

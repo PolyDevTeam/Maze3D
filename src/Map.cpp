@@ -2,7 +2,18 @@
 
 using namespace cv;
 
-Map::Map() = default;
+Map::Map() {
+    m_world = new World();
+    m_wall = new Wall();
+    m_ground = new Ground;
+}
+
+Map::~Map() {
+    delete m_world;
+    delete m_ball;
+    delete m_wall;
+    delete m_ground;
+}
 
 void Map::start(const cv::Point2i &start) {
     this->m_startPoint = start;

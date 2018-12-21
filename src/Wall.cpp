@@ -6,7 +6,9 @@ using namespace cv;
 
 Wall::Wall() = default;
 
-Wall::~Wall() = default;
+Wall::~Wall() {
+    delete physics;
+}
 
 void Wall::update(Image src, Rect zone, Rect boundingTriangle, Rect boundingCircle) {
     Mat src_canny;
@@ -75,7 +77,7 @@ btCompoundShape *Wall::getPhysics() const {
 void Wall::draw(const btScalar mat[]) {
     glPushMatrix();
     {
-        glMultMatrixf((const float*) mat);
+        glMultMatrixf((const float *) mat);
         glBegin(GL_LINES);
         {
             glColor3f(0.0f, 0.7f, 0.0f);

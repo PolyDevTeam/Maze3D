@@ -10,22 +10,36 @@
 class Map {
 public:
     Map();
-    cv::Point2i& start();
-    void start(const cv::Point2i& start);
+
+    ~Map();
+
+    cv::Point2i &start();
+
+    void start(const cv::Point2i &start);
+
     void setStartX(const int point);
+
     void setStartY(const int point);
+
     void setFinishX(const int point);
+
     void setFInishY(const int point);
-    cv::Point2i& finish();
-    void finish(const cv::Point2i& finish);
+
+    cv::Point2i &finish();
+
+    void finish(const cv::Point2i &finish);
+
     void createPhysics();
-    Wall* wall() const;
-    void draw(GL* glWindow, cv::Mat rvec_decomp);
+
+    Wall *wall() const;
+
+    void draw(GL *glWindow, cv::Mat rvec_decomp);
+
 private:
-    World* m_world;
-    Ball* m_ball;
-    Wall* m_wall;
-    Ground* m_ground;
+    World *m_world;
+    Ball *m_ball;
+    Wall *m_wall;
+    Ground *m_ground;
     cv::Point2i m_startPoint;
     cv::Point2i m_finishPoint;
 };
