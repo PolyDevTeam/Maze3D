@@ -385,15 +385,14 @@ void Game::run() {
 }
 
 void Game::start(int argc, char **argv) {
-    map->start().x -= pTopLeft.x;
-//    getCalibration();
-//
-//    glWindows = new GL();
-//    glWindows->init();
-//
-//    initialise();
-//
-//    run();
+    getCalibration();
+
+    glWindows = new GL();
+    glWindows->init();
+
+    initialise();
+
+    run();
 }
 
 void Game::resetDetection(VideoCapture capture) {
